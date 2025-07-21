@@ -125,5 +125,16 @@
     <script type="module" src="./js/modals.js"></script>
     <script type="module" src="./js/ui.js"></script>
     <script type="module" src="./js/app.js"></script>
+    !-- Admin Login Modal -->
+<div id="admin-login-modal" class="modal-backdrop hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
+        <h3 class="text-xl font-bold mb-4">Admin Login</h3>
+        <input type="password" id="admin-password-input" class="w-full p-2 border border-gray-300 rounded-md mb-4" placeholder="Password">
+        <div class="flex justify-end space-x-2">
+            <button type="button" onclick="closeModal('admin-login-modal')" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
+            <button onclick="checkAdminPassword()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Login</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
