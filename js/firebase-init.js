@@ -1,13 +1,15 @@
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+// Initialize Firebase
+var firebaseConfig = {
+  apiKey: "AIzaSyAmTGZo-kU-HsDwczXb2sjTw5VZgCDJn68",
+  authDomain: "k-pop-price-list-pro.firebaseapp.com",
+  projectId: "k-pop-price-list-pro",
+  storageBucket: "k-pop-price-list-pro.appspot.com",
+  messagingSenderId: "386977468923",
+  appId: "1:386977468923:web:4fecd8b5971976063e7b5e"
+};
 
-<!-- Application Scripts (LOAD IN THIS ORDER) -->
-<script src="/js/firebase-init.js"></script>
-<script src="/js/utils.js"></script>
-<script src="/js/themes.js"></script>
-<script src="/js/cards.js"></script>
-<script src="/js/admin.js"></script>
-<script src="/js/modals.js"></script>
-<script src="/js/ui.js"></script>
-<script src="/js/app.js"></script>
+// Initialize Firebase
+var app = firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore(app);
+var photocardsCollection = db.collection("photocards");
+var settingsDoc = db.doc("settings/main");
