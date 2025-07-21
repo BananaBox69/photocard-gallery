@@ -1,0 +1,98 @@
+/* Import Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles and Custom CSS from original file */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-bg, #f3f4f6);
+  transition: background-color 0.5s ease;
+  color: #1f2937; /* Default text color: gray-800 */
+}
+
+/* Theme-aware classes */
+.theme-bg-gradient {
+  background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+}
+
+.theme-text {
+  color: var(--color-primary);
+}
+
+.theme-ring-focus:focus {
+  --tw-ring-color: var(--color-primary);
+}
+
+/* Card selection highlight */
+.card-selected {
+  box-shadow: 0 0 0 3px var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Styling for inputs inside the themed control panel */
+#control-panel.theme-bg-gradient select,
+#control-panel.theme-bg-gradient input {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+#control-panel.theme-bg-gradient select option {
+  color: #333; /* For dropdown options */
+}
+
+#control-panel.theme-bg-gradient ::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Fade-in animation for cards */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Edit Pen icon visibility */
+.edit-pen {
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.title-container:hover .edit-pen,
+.edit-pen.admin-visible {
+  opacity: 1;
+}
+
+/* Autocomplete styles */
+.autocomplete-suggestions {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-top: none;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 100;
+  width: 100%;
+  border-radius: 0 0 0.375rem 0.375rem;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover,
+.suggestion-active {
+  background-color: #e5e7eb; /* gray-200 */
+}
