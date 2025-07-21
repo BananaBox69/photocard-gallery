@@ -1,4 +1,4 @@
-// Initialize Firebase
+// Firebase configuration
 var firebaseConfig = {
   apiKey: "AIzaSyAmTGZo-kU-HsDwczXb2sjTw5VZgCDJn68",
   authDomain: "k-pop-price-list-pro.firebaseapp.com",
