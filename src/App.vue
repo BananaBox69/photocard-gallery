@@ -43,6 +43,11 @@ const searchTerm = ref('');
 const selectedGroup = ref('all');
 const selectedStatus = ref('all');
 const sortOrder = ref('default');
+const albumSuggestions = ref([]);
+const memberSuggestions = ref([]);
+const showAlbumSuggestions = ref(false);
+const showMemberSuggestions = ref(false);
+const activeSuggestionIndex = ref(-1);
 
 // --- COMPUTED PROPERTIES ---
 const filteredCards = computed(() => {
@@ -109,6 +114,13 @@ const adminDashboardStats = computed(() => {
     };
 });
 
+const selectedCardsTotal = computed(() => {
+    return selectedCards.value.reduce((sum, id) => {
+        const card = allCards.value.find(c => c.id === id);
+        return sum + (card?.price || 0);
+    }, 0);
+});
+
 // --- METHODS ---
 function darkenColor(hex, percent) {
     if (!hex || hex.length < 7) return '#000000';
@@ -126,14 +138,198 @@ function darkenColor(hex, percent) {
 }
 
 function openModal(modalName) {
-  activeModal.value = modalName;
+    activeModal.value = modalName;
+    if (modalName === 'add-card') {
+        newCardData.value = { group: 'Red Velvet', member: '', album: '', price: '', status: 'available' };
+    }
 }
 
 function closeModal() {
-  activeModal.value = null;
+    activeModal.value = null;
+    newCardData.value = {};
+    editCardId.value = null;
+    showAlbumSuggestions.value = false;
+    showMemberSuggestions.value = false;
 }
 
-// ... rest of the functions will go here ...
+function verifyAdminPassword() {
+    if (adminPasswordInput.value === ADMIN_PASSWORD) {
+        isAdmin.value = true;
+        adminPasswordInput.value = '';
+        closeModal();
+    } else {
+        alert('Incorrect password');
+    }
+}
+
+function toggleCardSelection(cardId) {
+    const index = selectedCards.value.indexOf(cardId);
+    if (index === -1) {
+        selectedCards.value.push(cardId);
+    } else {
+        selectedCards.value.splice(index, 1);
+    }
+}
+
+function clearSelection() {
+    selectedCards.value = [];
+}
+
+async function addNewCard() {
+    try {
+        const cardData = {
+            ...newCardData.value,
+            price: parseFloat(newCardData.value.price),
+            createdAt: new Date().toISOString(),
+            displayId: generateDisplayId(newCardData.value)
+        };
+        await addDoc(photocardsCollection, cardData);
+        closeModal();
+    } catch (error) {
+        console.error("Error adding document: ", error);
+    }
+}
+
+function generateDisplayId(card) {
+    const groupAbbr = GROUP_ABBR[card.group] || card.group.substring(0, 2).toUpperCase();
+    const memberInitial = card.member ? card.member.substring(0, 1) : '';
+    return `${groupAbbr}${memberInitial}${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
+async function updateCard() {
+    try {
+        const cardRef = doc(photocardsCollection, editCardId.value);
+        await updateDoc(cardRef, {
+            ...newCardData.value,
+            price: parseFloat(newCardData.value.price),
+            displayId: generateDisplayId(newCardData.value)
+        });
+        closeModal();
+    } catch (error) {
+        console.error("Error updating document: ", error);
+    }
+}
+
+async function deleteCard(cardId) {
+    if (confirm('Are you sure you want to delete this card?')) {
+        try {
+            await deleteDoc(doc(photocardsCollection, cardId));
+            closeModal();
+        } catch (error) {
+            console.error("Error deleting document: ", error);
+        }
+    }
+}
+
+function prepareEditCard(card) {
+    editCardId.value = card.id;
+    newCardData.value = { ...card };
+    openModal('edit-card');
+}
+
+function updateBulkPrice() {
+    if (!bulkPrice.value || isNaN(bulkPrice.value)) return;
+    
+    const batch = writeBatch(db);
+    selectedCards.value.forEach(cardId => {
+        const cardRef = doc(photocardsCollection, cardId);
+        batch.update(cardRef, { price: parseFloat(bulkPrice.value) });
+    });
+    
+    batch.commit()
+        .then(() => {
+            bulkPrice.value = null;
+            closeModal();
+            clearSelection();
+        })
+        .catch(error => {
+            console.error("Error updating batch: ", error);
+        });
+}
+
+function updateBulkStatus(status) {
+    const batch = writeBatch(db);
+    selectedCards.value.forEach(cardId => {
+        const cardRef = doc(photocardsCollection, cardId);
+        batch.update(cardRef, { status });
+    });
+    
+    batch.commit()
+        .then(() => {
+            closeModal();
+            clearSelection();
+        })
+        .catch(error => {
+            console.error("Error updating batch: ", error);
+        });
+}
+
+function updateAlbumSuggestions() {
+    if (!newCardData.value.group) return;
+    const groupData = ARTIST_DATA[newCardData.value.group];
+    if (groupData) {
+        albumSuggestions.value = groupData.albums.filter(album => 
+            album.toLowerCase().includes(newCardData.value.album.toLowerCase())
+        );
+        showAlbumSuggestions.value = newCardData.value.album.length > 0 && albumSuggestions.value.length > 0;
+    }
+}
+
+function updateMemberSuggestions() {
+    if (!newCardData.value.group) return;
+    const groupData = ARTIST_DATA[newCardData.value.group];
+    if (groupData) {
+        memberSuggestions.value = groupData.members.filter(member => 
+            member.toLowerCase().includes(newCardData.value.member.toLowerCase())
+        );
+        showMemberSuggestions.value = newCardData.value.member.length > 0 && memberSuggestions.value.length > 0;
+    }
+}
+
+function selectAlbumSuggestion(album) {
+    newCardData.value.album = album;
+    showAlbumSuggestions.value = false;
+}
+
+function selectMemberSuggestion(member) {
+    newCardData.value.member = member;
+    showMemberSuggestions.value = false;
+}
+
+function handleAlbumKeyDown(e) {
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeSuggestionIndex.value = Math.min(activeSuggestionIndex.value + 1, albumSuggestions.value.length - 1);
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeSuggestionIndex.value = Math.max(activeSuggestionIndex.value - 1, -1);
+    } else if (e.key === 'Enter' && activeSuggestionIndex.value >= 0) {
+        e.preventDefault();
+        selectAlbumSuggestion(albumSuggestions.value[activeSuggestionIndex.value]);
+    }
+}
+
+function handleMemberKeyDown(e) {
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeSuggestionIndex.value = Math.min(activeSuggestionIndex.value + 1, memberSuggestions.value.length - 1);
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeSuggestionIndex.value = Math.max(activeSuggestionIndex.value - 1, -1);
+    } else if (e.key === 'Enter' && activeSuggestionIndex.value >= 0) {
+        e.preventDefault();
+        selectMemberSuggestion(memberSuggestions.value[activeSuggestionIndex.value]);
+    }
+}
+
+async function updateSiteSettings() {
+    try {
+        await setDoc(settingsDoc, siteSettings.value, { merge: true });
+        closeModal();
+    } catch (error) {
+        console.error("Error updating settings: ", error);
+    }
+}
 
 // --- LIFECYCLE HOOKS ---
 onMounted(() => {
@@ -146,96 +342,377 @@ onMounted(() => {
             document.title = siteSettings.value.title;
         }
     });
-    // initThemes(); // Will be added back later
 });
-
 </script>
 
 <template>
-  <div class="container mx-auto p-4 md:p-8 pb-24">
-    <!-- THEME SWITCHER -->
-    <div class="mb-8 text-center">
-        <h2 class="font-bold text-gray-700 text-xl mb-2">Choose your bias!</h2>
-        <div id="theme-switcher" class="flex justify-center items-center gap-3"></div>
-    </div>
-
-    <header class="text-center mb-8 relative">
-        <p id="last-updated-display" class="text-xs text-gray-500 absolute top-0 left-0 hidden"></p>
-        <div class="flex justify-center items-center gap-3 title-container">
-             <h1 id="main-title" class="text-4xl md:text-5xl font-bold text-gray-900 transition-colors duration-500">Photocard Sale</h1>
-             <span id="edit-title-btn" class="edit-pen hidden text-gray-500" @click="openModal('title-edit-modal')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-             </span>
+  <div class="min-h-screen">
+    <!-- Header -->
+    <header class="theme-bg-gradient text-white p-4 shadow-md">
+      <div class="container mx-auto flex justify-between items-center">
+        <div class="title-container flex items-center">
+          <h1 class="text-2xl font-bold">{{ siteSettings.title }}</h1>
+          <span v-if="isAdmin" class="edit-pen ml-2" @click="openModal('edit-title')">✏️</span>
         </div>
-        <div class="flex justify-center items-center gap-2 title-container">
-            <p id="subtitle" class="text-lg text-gray-600 mt-2 transition-colors duration-500">Welcome to my collection! Feel free to browse.</p>
-            <span id="edit-subtitle-btn" class="edit-pen hidden text-gray-500 mt-2" @click="openModal('subtitle-edit-modal')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-            </span>
+        <div class="flex items-center space-x-4">
+          <button v-if="!isAdmin" @click="openModal('admin-login')" class="px-3 py-1 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition">
+            Admin
+          </button>
+          <div v-else class="flex items-center space-x-2">
+            <span class="text-sm">Admin Mode</span>
+            <button @click="isAdmin = false" class="px-3 py-1 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition">
+              Exit
+            </button>
+          </div>
         </div>
-        <div class="absolute top-0 right-0">
-            <button id="admin-login-btn" @click="openModal('admin-login-modal')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
-            <button id="admin-logout-btn" @click="logoutAdmin()" class="hidden px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
-        </div>
+      </div>
+      <p class="container mx-auto mt-1 text-sm opacity-90">{{ siteSettings.subtitle }}</p>
     </header>
 
-    <div id="control-panel" class="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-md mb-8 sticky top-4 z-10 transition-all duration-500">
-         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <input type="text" v-model="searchTerm" placeholder="Search..." class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
-            <select v-model="selectedGroup" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
-                <option value="all">All Groups</option>
-                <option v-for="group in GROUP_ORDER" :key="group" :value="group">{{ group }}</option>
-            </select>
-            <div id="status-filter-wrapper" class="hidden">
-                <select v-model="selectedStatus" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
-                    <option value="all">All Statuses</option>
-                    <option value="available">Available</option>
-                    <option value="on-hold">On Hold</option>
-                    <option value="sold">Sold</option>
-                </select>
-            </div>
-            <select v-model="sortOrder" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
-                <option value="default">Default Sort</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="date-desc">Newest Added</option>
-                <option value="id-asc">ID: A to Z</option>
-            </select>
-         </div>
-         <div class="flex items-center justify-between mt-4">
-            <button id="add-card-btn" @click="openModal('add-card-modal')" class="hidden px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Add New Card</button>
-            <!-- BULK ACTION BAR -->
-            <div id="bulk-action-bar" class="hidden w-full">
-                <div class="bg-indigo-100 border border-indigo-200 rounded-md p-2 flex justify-between items-center">
-                    <div>
-                        <span id="bulk-count" class="font-bold">0</span> cards selected
-                    </div>
-                    <div class="flex items-center gap-1 flex-wrap justify-end">
-                        <button @click="bulkToggleDiscount('sale')" class="px-2 py-1 bg-red-500 text-white rounded-md text-xs hover:bg-red-600">10% Off</button>
-                        <button @click="bulkToggleDiscount('super-sale')" class="px-2 py-1 bg-purple-700 text-white rounded-md text-xs hover:bg-purple-800">20% Off</button>
-                        <button @click="openModal('bulk-price-modal')" class="px-2 py-1 bg-blue-600 text-white rounded-md text-xs hover:bg-blue-700">Set Price</button>
-                        <button @click="bulkUpdateStatus('available')" class="px-2 py-1 bg-green-600 text-white rounded-md text-xs hover:bg-green-700">Mark Available</button>
-                        <button @click="bulkUpdateStatus('on-hold')" class="px-2 py-1 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600">Mark Reserved</button>
-                        <button @click="bulkUpdateStatus('sold')" class="px-2 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">Mark Sold</button>
-                        <button @click="openModal('delete-confirm-modal')" class="px-2 py-1 bg-gray-600 text-white rounded-md text-xs hover:bg-gray-700">Delete</button>
-                        <button @click="deselectAll()" class="px-2 py-1 bg-gray-200 text-gray-800 rounded-md text-xs hover:bg-gray-300">Deselect All</button>
-                    </div>
-                </div>
-            </div>
-         </div>
+    <!-- Control Panel -->
+    <div id="control-panel" class="theme-bg-gradient p-4 shadow-md">
+      <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Search and filters -->
+        <div class="col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input v-model="searchTerm" type="text" placeholder="Search..." class="px-3 py-2 rounded">
+          <select v-model="selectedGroup" class="px-3 py-2 rounded">
+            <option value="all">All Groups</option>
+            <option v-for="group in GROUP_ORDER" :value="group">{{ group }}</option>
+          </select>
+          <select v-model="sortOrder" class="px-3 py-2 rounded">
+            <option value="default">Default Sort</option>
+            <option value="price-desc">Price (High to Low)</option>
+            <option value="price-asc">Price (Low to High)</option>
+            <option value="date-desc">Newest First</option>
+            <option value="id-asc">ID (A-Z)</option>
+          </select>
+        </div>
+        
+        <!-- Admin controls -->
+        <div v-if="isAdmin" class="flex justify-end space-x-2">
+          <button @click="openModal('add-card')" class="px-3 py-2 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition">
+            Add Card
+          </button>
+          <button @click="openModal('bulk-edit')" class="px-3 py-2 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition">
+            Bulk Edit
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div v-if="filteredCards.length > 0" id="photocard-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-        <!-- Card rendering will be done here with v-for -->
-    </div>
-    <div v-else id="no-results" class="text-center py-16">
-        <h3 class="text-2xl font-semibold text-gray-700">No cards found!</h3>
-        <p class="text-gray-500 mt-2">Try changing your search or filter settings.</p>
+    <!-- Main Content -->
+    <main class="container mx-auto p-4">
+      <!-- Admin Dashboard -->
+      <div v-if="isAdmin" id="admin-dashboard" class="mb-6 p-4 bg-gray-100 rounded-lg">
+        <h2 class="text-lg font-semibold mb-2">Dashboard</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="p-3 bg-white rounded shadow">
+            <h3 class="text-sm text-gray-500">Total Cards</h3>
+            <p class="text-xl font-bold">{{ adminDashboardStats.total }}</p>
+          </div>
+          <div class="p-3 bg-white rounded shadow">
+            <h3 class="text-sm text-gray-500">Available</h3>
+            <p class="text-xl font-bold">{{ adminDashboardStats.available }}</p>
+          </div>
+          <div class="p-3 bg-white rounded shadow">
+            <h3 class="text-sm text-gray-500">On Hold</h3>
+            <p class="text-xl font-bold">{{ adminDashboardStats.onHold }}</p>
+          </div>
+          <div class="p-3 bg-white rounded shadow">
+            <h3 class="text-sm text-gray-500">Total Value</h3>
+            <p class="text-xl font-bold">{{ adminDashboardStats.value }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selection Info -->
+      <div v-if="selectedCards.length > 0" class="mb-4 p-3 bg-blue-50 rounded-lg flex justify-between items-center">
+        <div>
+          <span class="font-semibold">{{ selectedCards.length }} card{{ selectedCards.length !== 1 ? 's' : '' }} selected</span>
+          <span class="ml-3">Total: €{{ selectedCardsTotal.toFixed(2) }}</span>
+        </div>
+        <button @click="clearSelection" class="text-blue-600 hover:text-blue-800">
+          Clear selection
+        </button>
+      </div>
+
+      <!-- Photocard Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div 
+          v-for="card in filteredCards" 
+          :key="card.id"
+          class="group-item relative rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105"
+          :class="{
+            'bg-white': card.status === 'available',
+            'bg-yellow-100': card.status === 'on-hold',
+            'opacity-70': card.status === 'sold',
+            'card-selected': selectedCards.includes(card.id)
+          }"
+          @click="toggleCardSelection(card.id)"
+        >
+          <div class="p-3">
+            <div class="flex justify-between items-start mb-1">
+              <span class="font-semibold">{{ card.member }}</span>
+              <span class="text-sm">{{ card.displayId }}</span>
+            </div>
+            <div class="text-sm text-gray-600 mb-1">{{ card.album }}</div>
+            <div class="font-bold text-right theme-text">€{{ card.price }}</div>
+          </div>
+          
+          <!-- Sold overlay -->
+          <div v-if="card.status === 'sold'" class="sold-overlay">
+            SOLD
+          </div>
+
+          <!-- Admin edit button -->
+          <div v-if="isAdmin" class="absolute top-2 right-2">
+            <button @click.stop="prepareEditCard(card)" class="p-1 bg-white bg-opacity-70 rounded-full shadow hover:bg-opacity-100">
+              ✏️
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 p-4 mt-8">
+      <div class="container mx-auto text-center text-sm text-gray-600">
+        <p>Last updated: {{ siteSettings.lastUpdated }}</p>
+      </div>
+    </footer>
+
+    <!-- Admin Login Modal -->
+    <div v-if="activeModal === 'admin-login'" class="modal-backdrop">
+      <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Admin Login</h2>
+        <input 
+          v-model="adminPasswordInput" 
+          type="password" 
+          placeholder="Enter admin password" 
+          class="w-full p-2 border rounded mb-4"
+          @keyup.enter="verifyAdminPassword"
+        >
+        <div class="flex justify-end space-x-2">
+          <button @click="closeModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+            Cancel
+          </button>
+          <button @click="verifyAdminPassword" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Login
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Floating Cart Button -->
-    <button id="cart-button" @click="openModal('export-modal')" class="hidden fixed bottom-6 right-6 theme-bg-gradient text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center text-2xl hover:scale-110 transition-transform z-30">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
-    </button>
+    <!-- Add Card Modal -->
+    <div v-if="activeModal === 'add-card'" class="modal-backdrop">
+      <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Add New Card</h2>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Group</label>
+            <select v-model="newCardData.group" class="w-full p-2 border rounded">
+              <option v-for="group in GROUP_ORDER" :value="group">{{ group }}</option>
+            </select>
+          </div>
+          
+          <div class="relative">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Member</label>
+            <input 
+              v-model="newCardData.member" 
+              @input="updateMemberSuggestions"
+              @keydown="handleMemberKeyDown"
+              type="text" 
+              placeholder="Enter member name" 
+              class="w-full p-2 border rounded"
+            >
+            <div v-if="showMemberSuggestions" class="autocomplete-suggestions">
+              <div 
+                v-for="(member, index) in memberSuggestions" 
+                :key="member"
+                class="suggestion-item"
+                :class="{ 'suggestion-active': index === activeSuggestionIndex }"
+                @click="selectMemberSuggestion(member)"
+              >
+                {{ member }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Album</label>
+            <input 
+              v-model="newCardData.album" 
+              @input="updateAlbumSuggestions"
+              @keydown="handleAlbumKeyDown"
+              type="text" 
+              placeholder="Enter album name" 
+              class="w-full p-2 border rounded"
+            >
+            <div v-if="showAlbumSuggestions" class="autocomplete-suggestions">
+              <div 
+                v-for="(album, index) in albumSuggestions" 
+                :key="album"
+                class="suggestion-item"
+                :class="{ 'suggestion-active': index === activeSuggestionIndex }"
+                @click="selectAlbumSuggestion(album)"
+              >
+                {{ album }}
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Price (€)</label>
+            <input v-model="newCardData.price" type="number" step="0.01" class="w-full p-2 border rounded">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select v-model="newCardData.status" class="w-full p-2 border rounded">
+              <option value="available">Available</option>
+              <option value="on-hold">On Hold</option>
+              <option value="sold">Sold</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-2 mt-6">
+          <button @click="closeModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+            Cancel
+          </button>
+          <button @click="addNewCard" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+            Add Card
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Card Modal -->
+    <div v-if="activeModal === 'edit-card'" class="modal-backdrop">
+      <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Edit Card</h2>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Group</label>
+            <select v-model="newCardData.group" class="w-full p-2 border rounded">
+              <option v-for="group in GROUP_ORDER" :value="group">{{ group }}</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Member</label>
+            <input v-model="newCardData.member" type="text" class="w-full p-2 border rounded">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Album</label>
+            <input v-model="newCardData.album" type="text" class="w-full p-2 border rounded">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Price (€)</label>
+            <input v-model="newCardData.price" type="number" step="0.01" class="w-full p-2 border rounded">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select v-model="newCardData.status" class="w-full p-2 border rounded">
+              <option value="available">Available</option>
+              <option value="on-hold">On Hold</option>
+              <option value="sold">Sold</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="flex justify-between mt-6">
+          <button @click="deleteCard(editCardId)" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+            Delete
+          </button>
+          <div class="space-x-2">
+            <button @click="closeModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+              Cancel
+            </button>
+            <button @click="updateCard" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Edit Modal -->
+    <div v-if="activeModal === 'bulk-edit'" class="modal-backdrop">
+      <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Bulk Edit ({{ selectedCards.length }} cards)</h2>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Set Price (€)</label>
+            <div class="flex space-x-2">
+              <input v-model="bulkPrice" type="number" step="0.01" class="flex-1 p-2 border rounded">
+              <button @click="updateBulkPrice" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                Apply
+              </button>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Set Status</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button @click="updateBulkStatus('available')" class="p-2 bg-green-100 text-green-800 rounded hover:bg-green-200">
+                Available
+              </button>
+              <button @click="updateBulkStatus('on-hold')" class="p-2 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200">
+                On Hold
+              </button>
+              <button @click="updateBulkStatus('sold')" class="p-2 bg-red-100 text-red-800 rounded hover:bg-red-200">
+                Sold
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end mt-6">
+          <button @click="closeModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Title Modal -->
+    <div v-if="activeModal === 'edit-title'" class="modal-backdrop">
+      <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Edit Site Settings</h2>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <input v-model="siteSettings.title" type="text" class="w-full p-2 border rounded">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
+            <input v-model="siteSettings.subtitle" type="text" class="w-full p-2 border rounded">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Last Updated</label>
+            <input v-model="siteSettings.lastUpdated" type="text" class="w-full p-2 border rounded">
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-2 mt-6">
+          <button @click="closeModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+            Cancel
+          </button>
+          <button @click="updateSiteSettings" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
