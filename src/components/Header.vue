@@ -19,9 +19,10 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
       </span>
     </div>
-    <div class="absolute top-0 right-0">
-      <button v-if="!isAdmin" @click="$emit('open-modal', 'admin-login')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
-      <button v-if="isAdmin" @click="$emit('logout')" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
+    <div class="absolute top-0 right-0 flex items-center gap-2">
+        <button @click="$emit('open-modal', 'info')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Info</button>
+        <button v-if="!isAdmin" @click="$emit('open-modal', 'admin-login')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
+        <button v-if="isAdmin" @click="$emit('logout')" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
     </div>
   </header>
 </template>
