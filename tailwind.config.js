@@ -1,11 +1,15 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.DEPRECATED = {
   content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'theme-primary': 'var(--color-primary)',
+        'theme-secondary': 'var(--color-secondary)',
+      },
+    },
   },
   plugins: [],
 }
