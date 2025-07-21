@@ -1,25 +1,122 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- The favicon link is a common source of URI errors, let's reference it simply -->
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="K-Pop Photocard Sales Application"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>K-Pop Photocard Sales</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <!-- This script tag points Vite to the entry point of your app -->
-    <script type="module" src="/src/index.js"></script>
-  </body>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="./css/styles.css" rel="stylesheet">
+</head>
+<body class="text-gray-800">
+    <!-- MODALS SECTION -->
+    <div id="admin-login-modal" class="modal-backdrop hidden"></div>
+    <div id="add-card-modal" class="modal-backdrop hidden"></div>
+    <div id="delete-confirm-modal" class="modal-backdrop hidden"></div>
+    <div id="title-edit-modal" class="modal-backdrop hidden"></div>
+    <div id="subtitle-edit-modal" class="modal-backdrop hidden"></div>
+    <div id="export-modal" class="modal-backdrop hidden"></div>
+    <div id="bulk-price-modal" class="modal-backdrop hidden"></div>
+
+    <div class="container mx-auto p-4 md:p-8 pb-24">
+        <!-- THEME SWITCHER -->
+        <div class="mb-8 text-center">
+            <h2 class="font-bold text-gray-700 text-xl mb-2">Choose your bias!</h2>
+            <div id="theme-switcher" class="flex justify-center items-center gap-3"></div>
+        </div>
+
+        <header class="text-center mb-8 relative">
+            <p id="last-updated-display" class="text-xs text-gray-500 absolute top-0 left-0 hidden"></p>
+            <div class="flex justify-center items-center gap-3 title-container">
+                <h1 id="main-title" class="text-4xl md:text-5xl font-bold text-gray-900 transition-colors duration-500">Photocard Sale</h1>
+                <span id="edit-title-btn" class="edit-pen hidden text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                </span>
+            </div>
+            <div class="flex justify-center items-center gap-2 title-container">
+                <p id="subtitle" class="text-lg text-gray-600 mt-2 transition-colors duration-500">Welcome to my collection! Feel free to browse.</p>
+                <span id="edit-subtitle-btn" class="edit-pen hidden text-gray-500 mt-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                </span>
+            </div>
+            <div class="absolute top-0 right-0">
+                <button id="admin-login-btn" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
+                <button id="admin-logout-btn" class="hidden px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
+            </div>
+        </header>
+
+        <div id="control-panel" class="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-md mb-8 sticky top-4 z-10 transition-all duration-500">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="search" placeholder="Search..." class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
+                <select id="groupFilter" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
+                    <option value="all">All Groups</option>
+                </select>
+                <div id="status-filter-wrapper" class="hidden">
+                    <select id="statusFilter" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
+                        <option value="all">All Statuses</option>
+                        <option value="available">Available</option>
+                        <option value="on-hold">On Hold</option>
+                        <option value="sold">Sold</option>
+                    </select>
+                </div>
+                <select id="sortOrder" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
+                    <option value="default">Default Sort</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="date-desc">Newest Added</option>
+                    <option value="id-asc">ID: A to Z</option>
+                </select>
+            </div>
+            <div class="flex items-center justify-between mt-4">
+                <button id="add-card-btn" class="hidden px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Add New Card</button>
+                <!-- BULK ACTION BAR -->
+                <div id="bulk-action-bar" class="hidden w-full">
+                    <div class="bg-indigo-100 border border-indigo-200 rounded-md p-2 flex justify-between items-center">
+                        <div>
+                            <span id="bulk-count" class="font-bold">0</span> cards selected
+                        </div>
+                        <div class="flex items-center gap-1 flex-wrap justify-end">
+                            <button class="px-2 py-1 bg-red-500 text-white rounded-md text-xs hover:bg-red-600">10% Off</button>
+                            <button class="px-2 py-1 bg-purple-700 text-white rounded-md text-xs hover:bg-purple-800">20% Off</button>
+                            <button class="px-2 py-1 bg-blue-600 text-white rounded-md text-xs hover:bg-blue-700">Set Price</button>
+                            <button class="px-2 py-1 bg-green-600 text-white rounded-md text-xs hover:bg-green-700">Mark Available</button>
+                            <button class="px-2 py-1 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600">Mark Reserved</button>
+                            <button class="px-2 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">Mark Sold</button>
+                            <button class="px-2 py-1 bg-gray-600 text-white rounded-md text-xs hover:bg-gray-700">Delete</button>
+                            <button class="px-2 py-1 bg-gray-200 text-gray-800 rounded-md text-xs hover:bg-gray-300">Deselect All</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="photocard-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"></div>
+        <div id="no-results" class="hidden text-center py-16">
+            <h3 class="text-2xl font-semibold text-gray-700">No cards found!</h3>
+            <p class="text-gray-500 mt-2">Try changing your search or filter settings.</p>
+        </div>
+    </div>
+    
+    <!-- Floating Cart Button -->
+    <button id="cart-button" class="hidden fixed bottom-6 right-6 theme-bg-gradient text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center text-2xl hover:scale-110 transition-transform z-30">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+    </button>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+    
+    <!-- Application Scripts -->
+    <script type="module" src="./js/firebase.js"></script>
+    <script type="module" src="./js/utils.js"></script>
+    <script type="module" src="./js/themes.js"></script>
+    <script type="module" src="./js/cards.js"></script>
+    <script type="module" src="./js/admin.js"></script>
+    <script type="module" src="./js/modals.js"></script>
+    <script type="module" src="./js/ui.js"></script>
+    <script type="module" src="./js/app.js"></script>
+</body>
 </html>
