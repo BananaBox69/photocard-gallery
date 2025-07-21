@@ -163,13 +163,13 @@ onMounted(() => {
         <p id="last-updated-display" class="text-xs text-gray-500 absolute top-0 left-0 hidden"></p>
         <div class="flex justify-center items-center gap-3 title-container">
              <h1 id="main-title" class="text-4xl md:text-5xl font-bold text-gray-900 transition-colors duration-500">Photocard Sale</h1>
-             <span id="edit-title-btn" class="edit-pen hidden text-gray-500" @click="openTitleEditModal()">
+             <span id="edit-title-btn" class="edit-pen hidden text-gray-500" @click="openModal('title-edit-modal')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
              </span>
         </div>
         <div class="flex justify-center items-center gap-2 title-container">
             <p id="subtitle" class="text-lg text-gray-600 mt-2 transition-colors duration-500">Welcome to my collection! Feel free to browse.</p>
-            <span id="edit-subtitle-btn" class="edit-pen hidden text-gray-500 mt-2" @click="openSubtitleEditModal()">
+            <span id="edit-subtitle-btn" class="edit-pen hidden text-gray-500 mt-2" @click="openModal('subtitle-edit-modal')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
             </span>
         </div>
@@ -203,7 +203,7 @@ onMounted(() => {
             </select>
          </div>
          <div class="flex items-center justify-between mt-4">
-            <button id="add-card-btn" @click="openAddCardModal()" class="hidden px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Add New Card</button>
+            <button id="add-card-btn" @click="openModal('add-card-modal')" class="hidden px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Add New Card</button>
             <!-- BULK ACTION BAR -->
             <div id="bulk-action-bar" class="hidden w-full">
                 <div class="bg-indigo-100 border border-indigo-200 rounded-md p-2 flex justify-between items-center">
@@ -213,11 +213,11 @@ onMounted(() => {
                     <div class="flex items-center gap-1 flex-wrap justify-end">
                         <button @click="bulkToggleDiscount('sale')" class="px-2 py-1 bg-red-500 text-white rounded-md text-xs hover:bg-red-600">10% Off</button>
                         <button @click="bulkToggleDiscount('super-sale')" class="px-2 py-1 bg-purple-700 text-white rounded-md text-xs hover:bg-purple-800">20% Off</button>
-                        <button @click="openBulkPriceModal()" class="px-2 py-1 bg-blue-600 text-white rounded-md text-xs hover:bg-blue-700">Set Price</button>
+                        <button @click="openModal('bulk-price-modal')" class="px-2 py-1 bg-blue-600 text-white rounded-md text-xs hover:bg-blue-700">Set Price</button>
                         <button @click="bulkUpdateStatus('available')" class="px-2 py-1 bg-green-600 text-white rounded-md text-xs hover:bg-green-700">Mark Available</button>
                         <button @click="bulkUpdateStatus('on-hold')" class="px-2 py-1 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600">Mark Reserved</button>
                         <button @click="bulkUpdateStatus('sold')" class="px-2 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">Mark Sold</button>
-                        <button @click="openBulkDeleteModal()" class="px-2 py-1 bg-gray-600 text-white rounded-md text-xs hover:bg-gray-700">Delete</button>
+                        <button @click="openModal('delete-confirm-modal')" class="px-2 py-1 bg-gray-600 text-white rounded-md text-xs hover:bg-gray-700">Delete</button>
                         <button @click="deselectAll()" class="px-2 py-1 bg-gray-200 text-gray-800 rounded-md text-xs hover:bg-gray-300">Deselect All</button>
                     </div>
                 </div>
@@ -234,7 +234,7 @@ onMounted(() => {
     </div>
 
     <!-- Floating Cart Button -->
-    <button id="cart-button" @click="openExportModal()" class="hidden fixed bottom-6 right-6 theme-bg-gradient text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center text-2xl hover:scale-110 transition-transform z-30">
+    <button id="cart-button" @click="openModal('export-modal')" class="hidden fixed bottom-6 right-6 theme-bg-gradient text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center text-2xl hover:scale-110 transition-transform z-30">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
         <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
     </button>
