@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc, getDoc, setDoc, query, where, getDocs, writeBatch } from "firebase/firestore";
 
@@ -125,9 +125,15 @@ function darkenColor(hex, percent) {
     return "#"+RR+GG+BB;
 }
 
-// ... Add the rest of the JS functions here, adapted for Vue if necessary ...
-// For example, openModal becomes: function openModal(modalName) { activeModal.value = modalName; }
-// And closeModal becomes: function closeModal() { activeModal.value = null; }
+function openModal(modalName) {
+  activeModal.value = modalName;
+}
+
+function closeModal() {
+  activeModal.value = null;
+}
+
+// ... rest of the functions will go here ...
 
 // --- LIFECYCLE HOOKS ---
 onMounted(() => {
@@ -140,7 +146,7 @@ onMounted(() => {
             document.title = siteSettings.value.title;
         }
     });
-    // initThemes();
+    // initThemes(); // Will be added back later
 });
 
 </script>
