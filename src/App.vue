@@ -152,8 +152,90 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- All the HTML from the body of the old file goes here -->
-  <!-- You'll need to replace direct DOM manipulation with Vue directives like v-if, v-for, @click, etc. -->
-  <!-- For example: <div v-if="isAdmin" id="admin-dashboard">...</div> -->
-  <!-- And: <div v-for="card in filteredCards" :key="card.id">...</div> -->
+  <div class="container mx-auto p-4 md:p-8 pb-24">
+    <!-- THEME SWITCHER -->
+    <div class="mb-8 text-center">
+        <h2 class="font-bold text-gray-700 text-xl mb-2">Choose your bias!</h2>
+        <div id="theme-switcher" class="flex justify-center items-center gap-3"></div>
+    </div>
+
+    <header class="text-center mb-8 relative">
+        <p id="last-updated-display" class="text-xs text-gray-500 absolute top-0 left-0 hidden"></p>
+        <div class="flex justify-center items-center gap-3 title-container">
+             <h1 id="main-title" class="text-4xl md:text-5xl font-bold text-gray-900 transition-colors duration-500">Photocard Sale</h1>
+             <span id="edit-title-btn" class="edit-pen hidden text-gray-500" @click="openTitleEditModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+             </span>
+        </div>
+        <div class="flex justify-center items-center gap-2 title-container">
+            <p id="subtitle" class="text-lg text-gray-600 mt-2 transition-colors duration-500">Welcome to my collection! Feel free to browse.</p>
+            <span id="edit-subtitle-btn" class="edit-pen hidden text-gray-500 mt-2" @click="openSubtitleEditModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+            </span>
+        </div>
+        <div class="absolute top-0 right-0">
+            <button id="admin-login-btn" @click="openModal('admin-login-modal')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
+            <button id="admin-logout-btn" @click="logoutAdmin()" class="hidden px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
+        </div>
+    </header>
+
+    <div id="control-panel" class="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-md mb-8 sticky top-4 z-10 transition-all duration-500">
+         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input type="text" v-model="searchTerm" placeholder="Search..." class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
+            <select v-model="selectedGroup" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
+                <option value="all">All Groups</option>
+                <option v-for="group in GROUP_ORDER" :key="group" :value="group">{{ group }}</option>
+            </select>
+            <div id="status-filter-wrapper" class="hidden">
+                <select v-model="selectedStatus" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
+                    <option value="all">All Statuses</option>
+                    <option value="available">Available</option>
+                    <option value="on-hold">On Hold</option>
+                    <option value="sold">Sold</option>
+                </select>
+            </div>
+            <select v-model="sortOrder" class="w-full rounded-md border-gray-300 shadow-sm p-2 theme-ring-focus">
+                <option value="default">Default Sort</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="date-desc">Newest Added</option>
+                <option value="id-asc">ID: A to Z</option>
+            </select>
+         </div>
+         <div class="flex items-center justify-between mt-4">
+            <button id="add-card-btn" @click="openAddCardModal()" class="hidden px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Add New Card</button>
+            <!-- BULK ACTION BAR -->
+            <div id="bulk-action-bar" class="hidden w-full">
+                <div class="bg-indigo-100 border border-indigo-200 rounded-md p-2 flex justify-between items-center">
+                    <div>
+                        <span id="bulk-count" class="font-bold">0</span> cards selected
+                    </div>
+                    <div class="flex items-center gap-1 flex-wrap justify-end">
+                        <button @click="bulkToggleDiscount('sale')" class="px-2 py-1 bg-red-500 text-white rounded-md text-xs hover:bg-red-600">10% Off</button>
+                        <button @click="bulkToggleDiscount('super-sale')" class="px-2 py-1 bg-purple-700 text-white rounded-md text-xs hover:bg-purple-800">20% Off</button>
+                        <button @click="openBulkPriceModal()" class="px-2 py-1 bg-blue-600 text-white rounded-md text-xs hover:bg-blue-700">Set Price</button>
+                        <button @click="bulkUpdateStatus('available')" class="px-2 py-1 bg-green-600 text-white rounded-md text-xs hover:bg-green-700">Mark Available</button>
+                        <button @click="bulkUpdateStatus('on-hold')" class="px-2 py-1 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600">Mark Reserved</button>
+                        <button @click="bulkUpdateStatus('sold')" class="px-2 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">Mark Sold</button>
+                        <button @click="openBulkDeleteModal()" class="px-2 py-1 bg-gray-600 text-white rounded-md text-xs hover:bg-gray-700">Delete</button>
+                        <button @click="deselectAll()" class="px-2 py-1 bg-gray-200 text-gray-800 rounded-md text-xs hover:bg-gray-300">Deselect All</button>
+                    </div>
+                </div>
+            </div>
+         </div>
+    </div>
+
+    <div v-if="filteredCards.length > 0" id="photocard-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+        <!-- Card rendering will be done here with v-for -->
+    </div>
+    <div v-else id="no-results" class="text-center py-16">
+        <h3 class="text-2xl font-semibold text-gray-700">No cards found!</h3>
+        <p class="text-gray-500 mt-2">Try changing your search or filter settings.</p>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <button id="cart-button" @click="openExportModal()" class="hidden fixed bottom-6 right-6 theme-bg-gradient text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center text-2xl hover:scale-110 transition-transform z-30">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+    </button>
 </template>
