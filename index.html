@@ -109,19 +109,6 @@
             visibility: visible;
         }
 
-        /* Reverted: Removed Loading Spinner Styles */
-
-        /* New styles for Title and Subtitle */
-        #main-title {
-            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2); /* Subtle shadow */
-        }
-        #subtitle {
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Subtle shadow */
-        }
-
         /* New gradient styles for tags */
         .tag-new {
             background-image: linear-gradient(to right, #60A5FA, #3B82F6); /* Blue gradient */
@@ -143,11 +130,28 @@
             background-color: #DC2626; /* Solid red */
             color: white;
         }
+
+        /* New styles for bottom-center admin controls */
+        #footer-admin-controls {
+            /* Removed fixed positioning */
+            width: 100%; /* Take full width to center content */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px; /* Space between buttons and timestamp */
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 2rem; /* Add some space from content above */
+        }
+        #footer-admin-controls .admin-buttons-group {
+            display: flex;
+            gap: 8px; /* Space between admin buttons */
+        }
     </style>
 </head>
 <body class="text-gray-800">
-
-    <!-- Reverted: Removed Loading Spinner Overlay -->
 
     <div id="admin-login-modal" class="modal-backdrop hidden">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
@@ -355,12 +359,6 @@
         </div>
 
         <header class="text-center mb-8 relative">
-            <p id="last-updated-display" class="text-xs text-gray-500 absolute top-0 right-0"></p>
-            <div class="absolute top-0 left-0 flex items-center space-x-2">
-                <button id="admin-login-btn" onclick="window.openModal('admin-login-modal')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
-                <button id="admin-logout-btn" onclick="window.logoutAdmin()" class="hidden px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
-                <button id="open-stats-modal-btn" onclick="window.openStatsModal()" class="hidden px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-md hover:bg-purple-700">View Stats</button>
-            </div>
             <div class="flex justify-center items-center gap-3 title-container">
                  <h1 id="main-title" class="text-4xl md:text-5xl font-bold text-gray-900 transition-colors duration-500">Photocard Sale</h1>
                  <span id="edit-title-btn" class="edit-pen hidden text-gray-500" onclick="window.openTitleEditModal()">
@@ -426,6 +424,16 @@
         <div id="no-results" class="hidden text-center py-16">
             <h3 class="text-2xl font-semibold text-gray-700">No cards found!</h3>
             <p class="text-gray-500 mt-2">Try changing your search or filter settings.</p>
+        </div>
+        
+        <!-- Footer Admin Controls and Timestamp (Moved here) -->
+        <div id="footer-admin-controls" class="flex flex-col items-center">
+            <div class="admin-buttons-group">
+                <button id="admin-login-btn" onclick="window.openModal('admin-login-modal')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
+                <button id="admin-logout-btn" onclick="window.logoutAdmin()" class="hidden px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
+                <button id="open-stats-modal-btn" onclick="window.openStatsModal()" class="hidden px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-md hover:bg-purple-700">View Stats</button>
+            </div>
+            <p id="last-updated-display" class="text-xs text-gray-500 mt-1"></p>
         </div>
     </div>
     
