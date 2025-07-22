@@ -429,6 +429,7 @@
         </div>
     </div>
 
+    <!-- Stats Modal -->
     <div id="stats-modal" class="modal-backdrop hidden">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-gray-800">
             <h3 class="text-2xl font-bold mb-4">Statistics Overview</h3>
@@ -1822,6 +1823,10 @@
             }
         }
 
+        // Add keydown listener to both email and password inputs for 'Enter' key login
+        ui.adminEmailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.checkAdminPassword();
+        });
         ui.adminPasswordInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') window.checkAdminPassword();
         });
