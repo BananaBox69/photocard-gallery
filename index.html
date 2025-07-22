@@ -228,35 +228,6 @@
 </head>
 <body class="text-gray-800">
 
-    <!-- Disclaimer Modal -->
-    <div id="disclaimer-modal" class="modal-backdrop hidden">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-gray-800">
-            <h3 class="text-2xl font-bold mb-4 text-center">Important Disclaimer</h3>
-            <div id="disclaimer-content" class="prose max-w-none mb-6 text-sm text-gray-700">
-                <!-- Disclaimer content will be loaded here from Firestore -->
-                <p>This website is not a commercial shop. It is a personal project to showcase and offer K-Pop photocards in an easy-to-view and user-friendly manner.</p>
-                <p>I am operating as a private individual, not for profit or as a professional business. Therefore, all transactions exclude any rights for returns, warranty, or similar consumer guarantees.</p>
-                <p>By proceeding, you acknowledge and agree to these terms.</p>
-            </div>
-            <div class="flex justify-end space-x-4">
-                <button type="button" onclick="window.declineDisclaimer()" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Decline & Exit</button>
-                <button type="button" onclick="window.acknowledgeDisclaimer()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Acknowledge & Enter</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Disclaimer Edit Modal -->
-    <div id="disclaimer-edit-modal" class="modal-backdrop hidden">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl text-gray-800">
-            <h3 class="text-xl font-bold mb-4">Edit Disclaimer Content</h3>
-            <textarea id="disclaimer-edit-textarea" class="w-full h-96 p-2 border border-gray-300 rounded-md mb-4 resize-y"></textarea>
-            <div class="flex justify-end space-x-2">
-                <button onclick="window.closeModal('disclaimer-edit-modal')" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
-                <button onclick="window.saveDisclaimerContent()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save</button>
-            </div>
-        </div>
-    </div>
-
     <div id="admin-login-modal" class="modal-backdrop hidden">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
             <h3 class="text-xl font-bold mb-4">Admin Login</h3>
@@ -427,10 +398,10 @@
     <div id="info-sheet-edit-modal" class="modal-backdrop hidden">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl text-gray-800">
             <h3 class="text-xl font-bold mb-4">Edit Selling Process Info</h3>
-            <textarea id="disclaimer-edit-textarea" class="w-full h-96 p-2 border border-gray-300 rounded-md mb-4 resize-y"></textarea>
+            <textarea id="info-sheet-edit-textarea" class="w-full h-96 p-2 border border-gray-300 rounded-md mb-4 resize-y"></textarea>
             <div class="flex justify-end space-x-2">
-                <button onclick="window.closeModal('disclaimer-edit-modal')" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
-                <button onclick="window.saveDisclaimerContent()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save</button>
+                <button onclick="window.closeModal('info-sheet-edit-modal')" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
+                <button onclick="window.saveInfoSheetContent()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save</button>
             </div>
         </div>
     </div>
@@ -516,7 +487,6 @@
                             <button onclick="window.bulkUpdateStatus('available')" class="px-2 py-1 bg-green-600 text-white rounded-md text-xs hover:bg-green-700">Mark Available</button>
                             <button onclick="window.bulkUpdateStatus('on-hold')" class="px-2 py-1 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600">Mark Reserved</button>
                             <button onclick="window.bulkUpdateStatus('sold')" class="px-2 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">Mark Sold</button>
-                            <button onclick="window.openBulkDeleteModal()" class="px-2 py-1 bg-gray-600 text-white rounded-md text-xs hover:bg-gray-700">Delete</button>
                             <button onclick="window.deselectAll()" class="px-2 py-1 bg-gray-200 text-gray-800 rounded-md text-xs hover:bg-gray-300">Deselect All</button>
                         </div>
                     </div>
@@ -536,7 +506,6 @@
                 <button id="admin-login-btn" onclick="window.openModal('admin-login-modal')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
                 <button id="admin-logout-btn" onclick="window.logoutAdmin()" class="hidden px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
                 <button id="open-stats-modal-btn" onclick="window.openStatsModal()" class="hidden px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-md hover:bg-purple-700">View Stats</button>
-                <button id="edit-disclaimer-btn" onclick="window.openEditDisclaimerModal()" class="hidden px-3 py-1.5 bg-yellow-600 text-white text-xs font-bold rounded-md hover:bg-yellow-700">Edit Disclaimer</button>
             </div>
             <p id="last-updated-display" class="text-xs text-gray-500 mt-1"></p>
         </div>
@@ -612,7 +581,7 @@
             },
             "IU": {
                 members: ["IU"],
-                albums: ["Lost and Found", "Growing Up", "IU...IM", "Real", "Real+", "Last Fantasy", "Spring of a Twenty Year Old", "Modern Times", "Modern Times - Epilogue", "A Flower Bookmark", "Chat-Shire", "Palette", "A Flower Bookmark 2", "Love Poem", "Lilac", "Pieces", "A Flower Bookmark 3"]
+                albums: ["Lost and Found", "Growing Up", "IU...IM", "Real", "Real+", "Last Fantasy", "Spring of a Twenty Year Old", "Modern Times", "Modern Times - Epilogue", "A Flower Bookmark", "Chat-Shire", "Palette", "A Flower Bookmark 2", "Love Poem", "Lilac", "Pieces", "The Winning", "A Flower Bookmark 3"]
             },
             "aespa": {
                 members: ["Karina", "Giselle", "Winter", "Ningning"],
@@ -628,7 +597,7 @@
         const photocardsCollection = collection(db, "photocards");
         const settingsDoc = doc(db, "settings", "main");
         const infoSheetDoc = doc(db, "settings", "infoSheet");
-        const disclaimerDoc = doc(db, "settings", "disclaimer"); // New document for disclaimer content
+        // const adminSettingsDoc is no longer needed with Firebase Auth
 
         let allCards = [];
         let isAdmin = false;
@@ -636,7 +605,67 @@
         let currentBias = null;
         let unsubscribePhotocards = null; // To store the unsubscribe function for photocards listener
 
-        const ui = {}; // Initialize ui object here, populate inside DOMContentLoaded
+        const ui = {
+            grid: document.getElementById('photocard-grid'),
+            searchInput: document.getElementById('search'),
+            groupFilter: document.getElementById('groupFilter'),
+            statusFilter: document.getElementById('statusFilter'),
+            sortOrder: document.getElementById('sortOrder'),
+            addCardBtn: document.getElementById('add-card-btn'),
+            addCardForm: document.getElementById('add-card-form'),
+            modalTitle: document.getElementById('modal-title'),
+            mainTitle: document.getElementById('main-title'),
+            editTitleBtn: document.getElementById('edit-title-btn'),
+            adminLoginBtn: document.getElementById('admin-login-btn'),
+            adminLogoutBtn: document.getElementById('admin-logout-btn'),
+            deleteConfirmBtn: document.getElementById('confirm-delete-btn'),
+            titleEditInput: document.getElementById('title-edit-input'),
+            adminEmailInput: document.getElementById('admin-email-input'),
+            adminPasswordInput: document.getElementById('admin-password-input'),
+            adminLoginMessage: document.getElementById('admin-login-message'),
+            cardGroupInput: document.getElementById('card-group-input'),
+            cardMemberInput: document.getElementById('card-member-input'),
+            cardAlbumInput: document.getElementById('card-album-input'),
+            noResults: document.getElementById('no-results'),
+            statusFilterWrapper: document.getElementById('status-filter-wrapper'),
+            cartButton: document.getElementById('cart-button'),
+            cartCount: document.getElementById('cart-count'),
+            exportTextarea: document.getElementById('export-textarea'),
+            exportShipping: document.getElementById('export-shipping'),
+            exportCountry: document.getElementById('export-country'),
+            exportPayment: document.getElementById('export-payment'),
+            copyExportBtn: document.getElementById('copy-export-btn'),
+            bulkActionBar: document.getElementById('bulk-action-bar'),
+            bulkCount: document.getElementById('bulk-count'),
+            bulkPriceInput: document.getElementById('bulk-price-input'),
+            themeSwitcher: document.getElementById('theme-switcher'),
+            controlPanel: document.getElementById('control-panel'),
+            subtitle: document.getElementById('subtitle'),
+            editSubtitleBtn: document.getElementById('edit-subtitle-btn'),
+            subtitleEditInput: document.getElementById('subtitle-edit-input'),
+            groupSuggestions: document.getElementById('group-suggestions'),
+            memberSuggestions: document.getElementById('member-suggestions'),
+            albumSuggestions: document.getElementById('album-suggestions'),
+            cardDescriptionInput: document.getElementById('card-description-input'),
+            descriptionSuggestions: document.getElementById('description-suggestions'),
+            lastUpdatedDisplay: document.getElementById('last-updated-display'),
+            countrySuggestions: document.getElementById('country-suggestions'),
+            infoSheetContent: document.getElementById('info-sheet-content'),
+            infoSheetEditButton: document.getElementById('edit-info-sheet-btn'),
+            infoSheetEditTextarea: document.getElementById('info-sheet-edit-textarea'),
+            exportValidationMessage: document.getElementById('export-validation-message'),
+            totalCardsStat: document.getElementById('total-cards-stat'),
+            soldCardsStat: document.getElementById('sold-cards-stat'),
+            availableValueStat: document.getElementById('available-value-stat'),
+            soldValueStat: document.getElementById('sold-value-stat'),
+            openStatsModalBtn: document.getElementById('open-stats-modal-btn'),
+            reservedCardsStat: document.getElementById('reserved-cards-stat'),
+            onSaleCardsStat: document.getElementById('on-sale-cards-stat'),
+            onSuperSaleCardsStat: document.getElementById('on-super-sale-cards-stat'),
+            totalDiscountValueStat: document.getElementById('total-discount-value-stat'),
+            backToTopBtn: document.getElementById('back-to-top-btn'),
+            deselectAllBtn: document.getElementById('deselect-all-btn'),
+        };
 
         // Utility function to darken a hex color
         function darkenColor(hex, percent) {
@@ -669,8 +698,6 @@
         }
 
         function displayCards() {
-            if (!ui.grid) return; // Defensive check
-
             ui.grid.innerHTML = '';
             const searchTerm = ui.searchInput.value.toLowerCase();
             const searchTerms = searchTerm.split(';').map(term => term.trim()).filter(term => term.length > 0);
@@ -704,7 +731,7 @@
                 return matchesSearch && matchesGroup && matchesStatus;
             });
             
-            if (ui.noResults) ui.noResults.classList.toggle('hidden', cardsToDisplay.length > 0);
+            ui.noResults.classList.toggle('hidden', cardsToDisplay.length > 0);
 
             switch(sortMethod) {
                 case 'price-desc':
@@ -807,7 +834,7 @@
                         <button onclick="window.toggleDiscount('${card.id}', 'sale')" class="p-1 bg-red-500 text-white rounded-full hover:bg-red-600" title="Toggle 10% Sale"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></button>
                         <button onclick="window.toggleDiscount('${card.id}', 'super-sale')" class="p-1 bg-purple-700 text-white rounded-full hover:bg-purple-800" title="Toggle 20% Super Sale"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></button>
                         <button onclick="window.openEditModal('${card.id}')" class="p-1 bg-blue-600 text-white rounded-full hover:bg-blue-700" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
-                        <button onclick="window.toggleStatus('${card.id}', 'sold')" class="p-1 bg-red-600 text-white rounded-full hover:bg-red-700" title="Toggle Sold"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></svg></button>
+                        <button onclick="window.toggleStatus('${card.id}', 'sold')" class="p-1 bg-red-600 text-white rounded-full hover:bg-red-700" title="Toggle Sold"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></button>
                         <button onclick="window.toggleStatus('${card.id}', 'on-hold')" class="p-1 bg-yellow-500 text-white rounded-full hover:bg-yellow-600" title="Toggle Reserved"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></button>
                         <button onclick="window.openSingleDeleteModal('${card.id}')" class="p-1 bg-gray-700 text-white rounded-full hover:bg-gray-800" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </div>` : '';
@@ -836,7 +863,6 @@
         }
         
         function updateGroupFilter() {
-            if (!ui.groupFilter) return; // Defensive check
             const groups = [...new Set(allCards.map(card => card.group).filter(g => g))];
             groups.sort((a, b) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b));
             ui.groupFilter.innerHTML = '<option value="all">All Groups</option>';
@@ -853,61 +879,45 @@
 
         onSnapshot(settingsDoc, (doc) => {
             const data = doc.exists() ? doc.data() : {};
-            if (ui.mainTitle) ui.mainTitle.textContent = data.title || "Photocard Sale";
-            if (ui.subtitle) ui.subtitle.textContent = data.subtitle || "Welcome to my collection! Feel free to browse.";
+            ui.mainTitle.textContent = data.title || "Photocard Sale";
+            ui.subtitle.textContent = data.subtitle || "Welcome to my collection! Feel free to browse.";
             document.title = ui.mainTitle.textContent;
-            if (ui.lastUpdatedDisplay) { // Check if element exists before accessing
-                if (data.lastUpdated) {
-                    ui.lastUpdatedDisplay.textContent = `Last updated: ${data.lastUpdated}`;
-                    ui.lastUpdatedDisplay.classList.remove('hidden');
-                } else {
-                    ui.lastUpdatedDisplay.classList.add('hidden');
-                }
+            if (data.lastUpdated) {
+                ui.lastUpdatedDisplay.textContent = `Last updated: ${data.lastUpdated}`;
+                ui.lastUpdatedDisplay.classList.remove('hidden');
+            } else {
+                ui.lastUpdatedDisplay.classList.add('hidden');
             }
         });
 
         onSnapshot(infoSheetDoc, (doc) => {
             const data = doc.exists() ? doc.data() : {};
-            if (ui.infoSheetContent) { // Check if element exists
-                ui.infoSheetContent.innerHTML = data.content || `
-                    <h4 class="text-lg font-semibold mb-2">How to Buy:</h4>
-                    <ol class="list-decimal list-inside space-y-1">
-                        <li>Browse the available photocards.</li>
-                        <li>Select the cards you'd like to purchase by clicking them.</li>
-                        <li>Click the shopping cart icon at the bottom right.</li>
-                        <li>Fill in your shipping and payment preferences.</li>
-                        <li>Copy the generated text and send it to me on Instagram!</li>
-                    </ol>
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Payment Methods:</h4>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li>PayPal F&F (Friends & Family) - preferred</li>
-                        <li>Wise (formerly TransferWise)</li>
-                        <li>Bank Transfer (within EU)</li>
-                    </ul>
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Shipping Information:</h4>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li>Shipping costs are not included in the listed prices and will be calculated based on your location and chosen shipping method.</li>
-                        <li>Options: Cheapest (untracked), Tracked, Insured.</li>
-                        <li>I ship worldwide!</li>
-                    </ul>
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Condition:</h4>
-                    <p>All cards are carefully sleeved and stored in a dry, pet-free, and smoke-free household. While I strive for perfection, please note that some cards may have minor manufacturing defects or small imperfections. If you are highly sensitive to such details, I recommend refraining from purchasing.</p>
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Contact:</h4>
-                    <p>For any questions or to finalize a purchase, please message me on <a href="https://www.instagram.com/bananatrades877/" target="_blank" class="text-blue-600 hover:underline">Instagram: @bananatrades877</a></p>
-                `;
-            }
-        });
-
-        // Listen for changes to the disclaimer document
-        onSnapshot(disclaimerDoc, (doc) => {
-            const data = doc.exists() ? doc.data() : {};
-            if (ui.disclaimerContentDiv) { // Check if element exists
-                ui.disclaimerContentDiv.innerHTML = data.content || `
-                    <p>This website is not a commercial shop. It is a personal project to showcase and offer K-Pop photocards in an easy-to-view and user-friendly manner.</p>
-                    <p>I am operating as a private individual, not for profit or as a professional business. Therefore, all transactions exclude any rights for returns, warranty, or similar consumer guarantees.</p>
-                    <p>By proceeding, you acknowledge and agree to these terms.</p>
-                `;
-            }
+            ui.infoSheetContent.innerHTML = data.content || `
+                <h4 class="text-lg font-semibold mb-2">How to Buy:</h4>
+                <ol class="list-decimal list-inside space-y-1">
+                    <li>Browse the available photocards.</li>
+                    <li>Select the cards you'd like to purchase by clicking them.</li>
+                    <li>Click the shopping cart icon at the bottom right.</li>
+                    <li>Fill in your shipping and payment preferences.</li>
+                    <li>Copy the generated text and send it to me on Instagram!</li>
+                </ol>
+                <h4 class="text-lg font-semibold mt-4 mb-2">Payment Methods:</h4>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>PayPal F&F (Friends & Family) - preferred</li>
+                    <li>Wise (formerly TransferWise)</li>
+                    <li>Bank Transfer (within EU)</li>
+                </ul>
+                <h4 class="text-lg font-semibold mt-4 mb-2">Shipping Information:</h4>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Shipping costs are not included in the listed prices and will be calculated based on your location and chosen shipping method.</li>
+                    <li>Options: Cheapest (untracked), Tracked, Insured.</li>
+                    <li>I ship worldwide!</li>
+                </ul>
+                <h4 class="text-lg font-semibold mt-4 mb-2">Condition:</h4>
+                <p>All cards are carefully sleeved and stored in a dry, pet-free, and smoke-free household. While I strive for perfection, please note that some cards may have minor manufacturing defects or small imperfections. If you are highly sensitive to such details, I recommend refraining from purchasing.</p>
+                <h4 class="text-lg font-semibold mt-4 mb-2">Contact:</h4>
+                <p>For any questions or to finalize a purchase, please message me on <a href="https://www.instagram.com/bananatrades877/" target="_blank" class="text-blue-600 hover:underline">Instagram: @bananatrades877</a></p>
+            `;
         });
 
         // Firebase Auth state listener
@@ -922,25 +932,23 @@
 
         function setAdminMode(enabled) {
             isAdmin = enabled;
-            // Ensure ui elements are defined before accessing classList
-            if (ui.adminLoginBtn) ui.adminLoginBtn.classList.toggle('hidden', enabled);
-            if (ui.adminLogoutBtn) ui.adminLogoutBtn.classList.toggle('hidden', !enabled);
-            if (ui.addCardBtn) ui.addCardBtn.classList.toggle('hidden', !enabled);
-            if (ui.editTitleBtn) ui.editTitleBtn.classList.toggle('hidden', !enabled);
-            if (ui.editTitleBtn) ui.editTitleBtn.classList.toggle('admin-visible', enabled);
-            if (ui.editSubtitleBtn) ui.editSubtitleBtn.classList.toggle('hidden', !enabled);
-            if (ui.editSubtitleBtn) ui.editSubtitleBtn.classList.toggle('admin-visible', enabled);
-            if (ui.infoSheetEditButton) ui.infoSheetEditButton.classList.toggle('hidden', !enabled);
-            if (ui.infoSheetEditButton) ui.infoSheetEditButton.classList.toggle('admin-visible', enabled);
-            if (ui.openStatsModalBtn) ui.openStatsModalBtn.classList.toggle('hidden', !enabled);
-            if (ui.editDisclaimerBtn) ui.editDisclaimerBtn.classList.toggle('hidden', !enabled); // Show/hide edit disclaimer button
+            ui.adminLoginBtn.classList.toggle('hidden', enabled);
+            ui.adminLogoutBtn.classList.toggle('hidden', !enabled);
+            ui.addCardBtn.classList.toggle('hidden', !enabled);
+            ui.editTitleBtn.classList.toggle('hidden', !enabled);
+            ui.editTitleBtn.classList.toggle('admin-visible', enabled);
+            ui.editSubtitleBtn.classList.toggle('hidden', !enabled);
+            ui.editSubtitleBtn.classList.toggle('admin-visible', enabled);
+            ui.infoSheetEditButton.classList.toggle('hidden', !enabled);
+            ui.infoSheetEditButton.classList.toggle('admin-visible', enabled);
+            ui.openStatsModalBtn.classList.toggle('hidden', !enabled);
             
-            const soldOption = ui.statusFilter ? ui.statusFilter.querySelector('option[value="sold"]') : null;
+            const soldOption = ui.statusFilter.querySelector('option[value="sold"]');
             if (soldOption) {
                 soldOption.hidden = !enabled;
             }
 
-            if (!enabled && ui.statusFilter && ui.statusFilter.value === 'sold') {
+            if (!enabled && ui.statusFilter.value === 'sold') {
                 ui.statusFilter.value = 'all';
             }
 
@@ -962,7 +970,7 @@
                     showMessageBox('Error', `Failed to load cards (Admin): ${error.message}`);
                 });
             } else { // Public mode: listen only to non-sold photocards
-                const q = query(photocardsCollection, where("status", "in", ["available", "on-hold"])); // Corrected public query
+                const q = query(photocardsCollection, where("status", "!=", "sold"));
                 unsubscribePhotocards = onSnapshot(q, (snapshot) => {
                     allCards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     updateGroupFilter();
@@ -987,21 +995,19 @@
         window.checkAdminPassword = async () => {
             const email = ui.adminEmailInput.value;
             const password = ui.adminPasswordInput.value;
-            if (ui.adminLoginMessage) ui.adminLoginMessage.classList.add('hidden'); // Defensive check
+            ui.adminLoginMessage.classList.add('hidden'); // Hide previous messages
 
             if (!email || !password) {
-                if (ui.adminLoginMessage) { // Defensive check
-                    ui.adminLoginMessage.textContent = 'Email and password are required.';
-                    ui.adminLoginMessage.classList.remove('hidden');
-                }
+                ui.adminLoginMessage.textContent = 'Email and password are required.';
+                ui.adminLoginMessage.classList.remove('hidden');
                 return;
             }
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 window.closeModal('admin-login-modal');
-                if (ui.adminEmailInput) ui.adminEmailInput.value = ''; // Defensive check
-                if (ui.adminPasswordInput) ui.adminPasswordInput.value = ''; // Defensive check
+                ui.adminEmailInput.value = '';
+                ui.adminPasswordInput.value = '';
             } catch (error) {
                 console.error("Firebase Auth Error: ", error);
                 let errorMessage = 'Login failed. Please check your credentials.';
@@ -1010,10 +1016,8 @@
                 } else if (error.code === 'auth/too-many-requests') {
                     errorMessage = 'Too many login attempts. Please try again later.';
                 }
-                if (ui.adminLoginMessage) { // Defensive check
-                    ui.adminLoginMessage.textContent = errorMessage;
-                    ui.adminLoginMessage.classList.remove('hidden');
-                }
+                ui.adminLoginMessage.textContent = errorMessage;
+                ui.adminLoginMessage.classList.remove('hidden');
             } finally {
                 // No loading spinner to hide
             }
@@ -1076,14 +1080,14 @@
             }, 0);
 
 
-            if (ui.totalCardsStat) ui.totalCardsStat.textContent = totalCards;
-            if (ui.soldCardsStat) ui.soldCardsStat.textContent = soldCardsCount;
-            if (ui.reservedCardsStat) ui.reservedCardsStat.textContent = reservedCardsCount;
-            if (ui.onSaleCardsStat) ui.onSaleCardsStat.textContent = onSaleCardsCount;
-            if (ui.onSuperSaleCardsStat) ui.onSuperSaleCardsStat.textContent = onSuperSaleCardsCount;
-            if (ui.availableValueStat) ui.availableValueStat.textContent = `€${totalAvailableValue.toFixed(2)}`;
-            if (ui.soldValueStat) ui.soldValueStat.textContent = `€${totalSoldValue.toFixed(2)}`;
-            if (ui.totalDiscountValueStat) ui.totalDiscountValueStat.textContent = `€${totalDiscountValue.toFixed(2)}`;
+            ui.totalCardsStat.textContent = totalCards;
+            ui.soldCardsStat.textContent = soldCardsCount;
+            ui.reservedCardsStat.textContent = reservedCardsCount;
+            ui.onSaleCardsStat.textContent = onSaleCardsCount;
+            ui.onSuperSaleCardsStat.textContent = onSuperSaleCardsCount;
+            ui.availableValueStat.textContent = `€${totalAvailableValue.toFixed(2)}`;
+            ui.soldValueStat.textContent = `€${totalSoldValue.toFixed(2)}`;
+            ui.totalDiscountValueStat.textContent = `€${totalDiscountValue.toFixed(2)}`;
 
             window.openModal('stats-modal');
         };
@@ -1100,7 +1104,6 @@
         }
 
         window.openAddCardModal = () => {
-            if (!ui.addCardForm || !ui.modalTitle || !document.getElementById('card-id-input')) return; // Defensive check
             ui.addCardForm.reset();
             ui.modalTitle.textContent = 'Add a New Card';
             document.getElementById('card-id-input').value = '';
@@ -1112,16 +1115,16 @@
         
         window.openEditModal = (cardId) => {
             const card = allCards.find(c => c.id === cardId);
-            if (!card || !ui.addCardForm || !ui.modalTitle || !document.getElementById('card-id-input')) return; // Defensive check
+            if (!card) return;
             ui.addCardForm.reset();
             ui.modalTitle.textContent = 'Edit Card';
             document.getElementById('card-id-input').value = card.id;
             document.getElementById('card-display-id-input').value = card.displayId;
-            ui.cardGroupInput.value = card.group;
-            ui.cardMemberInput.value = card.member;
-            ui.cardAlbumInput.value = card.album;
+            document.getElementById('card-group-input').value = card.group;
+            document.getElementById('card-member-input').value = card.member;
+            document.getElementById('card-album-input').value = card.album;
             document.getElementById('card-image-url-input').value = card.imageUrl;
-            ui.cardDescriptionInput.value = card.description;
+            document.getElementById('card-description-input').value = card.description;
             document.getElementById('card-price-input').value = card.price;
             const existingDescriptions = [...new Set(allCards.map(c => c.description).filter(d => d))];
             setupAutocomplete(ui.cardDescriptionInput, ui.descriptionSuggestions, existingDescriptions, null);
@@ -1143,11 +1146,11 @@
             const cardId = document.getElementById('card-id-input').value;
             const cardData = {
                 displayId: document.getElementById('card-display-id-input').value,
-                group: ui.cardGroupInput.value,
-                member: ui.cardMemberInput.value,
-                album: ui.cardAlbumInput.value,
+                group: document.getElementById('card-group-input').value,
+                member: document.getElementById('card-member-input').value,
+                album: document.getElementById('card-album-input').value,
                 imageUrl: document.getElementById('card-image-url-input').value,
-                description: ui.cardDescriptionInput.value,
+                description: document.getElementById('card-description-input').value,
                 price: parseFloat(document.getElementById('card-price-input').value),
             };
 
@@ -1179,15 +1182,13 @@
                 } else {
                     const savedGroup = cardData.group;
                     const savedMember = cardData.member;
-                    if (ui.addCardForm) ui.addCardForm.reset();
-                    if (ui.cardGroupInput) ui.cardGroupInput.value = savedGroup;
-                    if (ui.cardMemberInput) ui.cardMemberInput.value = savedMember;
+                    ui.addCardForm.reset();
+                    document.getElementById('card-group-input').value = savedGroup;
+                    document.getElementById('card-member-input').value = savedMember;
                     await updateDisplayIdField();
                     const confirmMsg = document.getElementById('save-another-confirm');
-                    if (confirmMsg) { // Defensive check
-                        confirmMsg.style.opacity = 1;
-                        setTimeout(() => { confirmMsg.style.opacity = 0; }, 2000);
-                    }
+                    confirmMsg.style.opacity = 1;
+                    setTimeout(() => { confirmMsg.style.opacity = 0; }, 2000);
                 }
             } catch (error) {
                 console.error("Error saving card: ", error);
@@ -1197,12 +1198,10 @@
             }
         }
 
-        if (ui.addCardForm) { // Defensive check
-            ui.addCardForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                handleSave(true);
-            });
-        }
+        ui.addCardForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleSave(true);
+        });
         
         window.saveAndAddAnother = () => handleSave(false);
 
@@ -1226,7 +1225,7 @@
         
         window.openSingleDeleteModal = (cardId) => {
             window.openModal('delete-confirm-modal');
-            if (ui.deleteConfirmBtn) ui.deleteConfirmBtn.onclick = () => deleteCard(cardId); // Defensive check
+            ui.deleteConfirmBtn.onclick = () => deleteCard(cardId);
         };
         
         async function deleteCard(cardId) {
@@ -1243,7 +1242,7 @@
         }
 
         window.openTitleEditModal = () => {
-            if (ui.titleEditInput && ui.mainTitle) ui.titleEditInput.value = ui.mainTitle.textContent; // Defensive check
+            ui.titleEditInput.value = ui.mainTitle.textContent;
             window.openModal('title-edit-modal');
         };
 
@@ -1262,7 +1261,7 @@
         };
 
         window.openSubtitleEditModal = () => {
-            if (ui.subtitleEditInput && ui.subtitle) ui.subtitleEditInput.value = ui.subtitle.textContent; // Defensive check
+            ui.subtitleEditInput.value = ui.subtitle.textContent;
             window.openModal('subtitle-edit-modal');
         };
 
@@ -1289,7 +1288,7 @@
         window.openInfoSheetEditModal = async () => {
             try {
                 const docSnap = await getDoc(infoSheetDoc);
-                if (ui.infoSheetEditTextarea) ui.infoSheetEditTextarea.value = docSnap.exists() ? docSnap.data().content : '';
+                ui.infoSheetEditTextarea.value = docSnap.exists() ? docSnap.data().content : '';
                 window.openModal('info-sheet-edit-modal');
             } catch (error) {
                 console.error("Error opening info sheet edit modal: ", error);
@@ -1303,8 +1302,8 @@
             const newContent = ui.infoSheetEditTextarea.value;
             try {
                 await setDoc(infoSheetDoc, { content: newContent.trim() }, { merge: true });
+                await updateLastUpdatedTimestamp();
                 window.closeModal('info-sheet-edit-modal');
-                showMessageBox('Success', 'Info sheet content updated!');
             } catch (error) {
                 console.error("Error saving info sheet content: ", error);
                 showMessageBox('Error', `Failed to save info sheet: ${error.message}`);
@@ -1313,82 +1312,14 @@
             }
         };
 
-        // Disclaimer Functions
-        window.showDisclaimerModal = async () => {
-            const disclaimerAcknowledged = localStorage.getItem('disclaimerAcknowledged');
-            if (disclaimerAcknowledged === 'true') {
-                return; // Already acknowledged, do nothing
-            }
-
-            // Fetch latest disclaimer content from Firestore
-            try {
-                const docSnap = await getDoc(disclaimerDoc);
-                if (docSnap.exists()) {
-                    if (ui.disclaimerContentDiv) ui.disclaimerContentDiv.innerHTML = docSnap.data().content;
-                }
-            } catch (error) {
-                console.error("Error fetching disclaimer content: ", error);
-                // Fallback to default content if Firestore fetch fails
-                if (ui.disclaimerContentDiv) {
-                    ui.disclaimerContentDiv.innerHTML = `
-                        <p>This website is not a commercial shop. It is a personal project to showcase and offer K-Pop photocards in an easy-to-view and user-friendly manner.</p>
-                        <p>I am operating as a private individual, not for profit or as a professional business. Therefore, all transactions exclude any rights for returns, warranty, or similar consumer guarantees.</p>
-                        <p>By proceeding, you acknowledge and agree to these terms.</p>
-                    `;
-                }
-            }
-            window.openModal('disclaimer-modal');
-        };
-
-        window.acknowledgeDisclaimer = () => {
-            localStorage.setItem('disclaimerAcknowledged', 'true');
-            window.closeModal('disclaimer-modal');
-        };
-
-        window.declineDisclaimer = () => {
-            window.location.href = 'https://www.google.com'; // Redirect to Google
-        };
-
-        window.openEditDisclaimerModal = async () => {
-            try {
-                const docSnap = await getDoc(disclaimerDoc);
-                if (ui.disclaimerEditTextarea) ui.disclaimerEditTextarea.value = docSnap.exists() ? docSnap.data().content : '';
-                window.openModal('disclaimer-edit-modal');
-            } catch (error) {
-                console.error("Error opening disclaimer edit modal: ", error);
-                showMessageBox('Error', `Failed to load disclaimer for editing: ${error.message}`);
-            }
-        };
-
-        window.saveDisclaimerContent = async () => {
-            const newContent = ui.disclaimerEditTextarea.value;
-            try {
-                await setDoc(disclaimerDoc, { content: newContent.trim() }, { merge: true });
-                window.closeModal('disclaimer-edit-modal');
-                showMessageBox('Success', 'Disclaimer content updated!');
-            } catch (error) {
-                console.error("Error saving disclaimer content: ", error);
-                showMessageBox('Error', `Failed to save disclaimer: ${error.message}`);
-            }
-        };
-        // End Disclaimer Functions
-
         window.openModal = (id) => {
-            const modalElement = document.getElementById(id);
-            if (modalElement) { // Defensive check
-                modalElement.classList.remove('hidden');
-                if (id === 'admin-login-modal') {
-                    setTimeout(() => {
-                        if (ui.adminEmailInput) ui.adminEmailInput.focus(); // Defensive check
-                    }, 50);
-                }
+            document.getElementById(id).classList.remove('hidden');
+            if (id === 'admin-login-modal') {
+                setTimeout(() => ui.adminEmailInput.focus(), 50);
             }
         };
         window.closeModal = (id) => {
-            const modalElement = document.getElementById(id);
-            if (modalElement) { // Defensive check
-                modalElement.classList.add('hidden');
-            }
+            document.getElementById(id).classList.add('hidden');
         };
 
         window.toggleCardSelection = (cardId) => {
@@ -1409,30 +1340,28 @@
                 updateCartButton();
             }
             // Show/hide deselect all button based on selection count
-            if (ui.deselectAllBtn && selectedCards.length > 0) { // Check if ui.deselectAllBtn exists
+            if (selectedCards.length > 0) {
                 ui.deselectAllBtn.classList.add('show');
-            } else if (ui.deselectAllBtn) { // Check if ui.deselectAllBtn exists
+            } else {
                 ui.deselectAllBtn.classList.remove('show');
             }
         }
 
         function updateCartButton() {
             const count = selectedCards.length;
-            if (ui.cartButton) { // Check if ui.cartButton exists
-                ui.cartButton.classList.toggle('hidden', count === 0);
-                if (ui.cartCount) ui.cartCount.textContent = count; // Check if ui.cartCount exists
-            }
+            ui.cartButton.classList.toggle('hidden', count === 0);
+            ui.cartCount.textContent = count;
         }
 
         function updateBulkActionBar() {
             const count = selectedCards.length;
             if (isAdmin && count > 0) {
-                if (ui.bulkActionBar) ui.bulkActionBar.classList.remove('hidden');
-                if (ui.addCardBtn) ui.addCardBtn.classList.add('hidden');
-                if (ui.bulkCount) ui.bulkCount.textContent = count;
+                ui.bulkActionBar.classList.remove('hidden');
+                ui.addCardBtn.classList.add('hidden');
+                ui.bulkCount.textContent = count;
             } else {
-                if (ui.bulkActionBar) ui.bulkActionBar.classList.add('hidden');
-                if (isAdmin && ui.addCardBtn) {
+                ui.bulkActionBar.classList.add('hidden');
+                if (isAdmin) {
                     ui.addCardBtn.classList.remove('hidden');
                 }
             }
@@ -1466,7 +1395,7 @@
 
         window.openBulkPriceModal = () => {
             if (selectedCards.length === 0) return;
-            if (ui.bulkPriceInput) ui.bulkPriceInput.value = '';
+            ui.bulkPriceInput.value = '';
             window.openModal('bulk-price-modal');
         };
 
@@ -1497,7 +1426,7 @@
         window.openBulkDeleteModal = () => {
             if (selectedCards.length === 0) return;
             window.openModal('delete-confirm-modal');
-            if (ui.deleteConfirmBtn) ui.deleteConfirmBtn.onclick = () => bulkDelete();
+            ui.deleteConfirmBtn.onclick = () => bulkDelete();
         };
 
         async function bulkDelete() {
@@ -1538,11 +1467,20 @@
             const originalPrice = cardData.originalPrice || cardData.price;
             
             try {
-                await updateDoc(cardRef, {
-                    price: originalPrice,
-                    discountType: null,
-                    originalPrice: null
-                });
+                if (cardData.discountType === type) {
+                    await updateDoc(cardRef, {
+                        price: originalPrice,
+                        discountType: null,
+                        originalPrice: null
+                    });
+                } else {
+                    const newPrice = calculateDiscountedPrice(originalPrice, type);
+                    await updateDoc(cardRef, {
+                        price: newPrice,
+                        discountType: type,
+                        originalPrice: originalPrice
+                    });
+                }
                 await updateLastUpdatedTimestamp();
             } catch (error) {
                 console.error("Error toggling discount: ", error);
@@ -1592,30 +1530,24 @@
         function generateExportText() {
             const items = selectedCards.map(id => allCards.find(c => c.id === id)).filter(c => c);
             if (items.length === 0) {
-                if (ui.exportTextarea) ui.exportTextarea.value = "No cards selected.";
-                if (ui.copyExportBtn) ui.copyExportBtn.classList.add('opacity-50', 'pointer-events-none');
-                if (ui.exportValidationMessage) {
-                    ui.exportValidationMessage.classList.remove('hidden');
-                    ui.exportValidationMessage.textContent = "No cards selected for export.";
-                }
+                ui.exportTextarea.value = "No cards selected.";
+                ui.copyExportBtn.classList.add('opacity-50', 'pointer-events-none');
+                ui.exportValidationMessage.classList.remove('hidden');
+                ui.exportValidationMessage.textContent = "No cards selected for export.";
                 return;
             }
 
-            const countryFilled = ui.exportCountry && ui.exportCountry.value.trim() !== '';
+            const countryFilled = ui.exportCountry.value.trim() !== '';
 
             if (!countryFilled) {
-                if (ui.copyExportBtn) ui.copyExportBtn.classList.add('opacity-50', 'pointer-events-none');
-                if (ui.exportValidationMessage) {
-                    ui.exportValidationMessage.classList.remove('hidden');
-                    ui.exportValidationMessage.classList.add('text-red-500');
-                    ui.exportValidationMessage.textContent = "Please fill in 'Ship to Country'.";
-                }
+                ui.copyExportBtn.classList.add('opacity-50', 'pointer-events-none');
+                ui.exportValidationMessage.classList.remove('hidden');
+                ui.exportValidationMessage.classList.add('text-red-500');
+                ui.exportValidationMessage.textContent = "Please fill in 'Ship to Country'.";
             } else {
-                if (ui.copyExportBtn) ui.copyExportBtn.classList.remove('opacity-50', 'pointer-events-none');
-                if (ui.exportValidationMessage) {
-                    ui.exportValidationMessage.classList.add('hidden');
-                    ui.exportValidationMessage.textContent = "";
-                }
+                ui.copyExportBtn.classList.remove('opacity-50', 'pointer-events-none');
+                ui.exportValidationMessage.classList.add('hidden');
+                ui.exportValidationMessage.textContent = "";
             }
 
 
@@ -1643,27 +1575,25 @@
             message += `------------------------------\n\n`;
             message += `TOTAL (${items.length} cards): €${totalPrice.toFixed(2)} (excl. shipping)\n\n`;
             message += `--- Shipping & Payment ---\n`;
-            message += `Ship to: ${ui.exportCountry ? ui.exportCountry.value : 'Please specify'}\n`;
-            message += `Shipping Method: ${ui.exportShipping ? ui.exportShipping.value : ''}\n`;
-            message += `Payment Method: ${ui.exportPayment ? ui.exportPayment.value : ''}\n`;
+            message += `Ship to: ${ui.exportCountry.value || 'Please specify'}\n`;
+            message += `Shipping Method: ${ui.exportShipping.value}\n`;
+            message += `Payment Method: ${ui.exportPayment.value}\n`;
 
-            if (ui.exportTextarea) ui.exportTextarea.value = message;
+            ui.exportTextarea.value = message;
         }
         
         window.copyExportText = () => {
-            if (ui.exportCountry && ui.exportCountry.value.trim() === '') {
-                if (ui.exportValidationMessage) {
-                    ui.exportValidationMessage.classList.remove('hidden');
-                    ui.exportValidationMessage.classList.add('text-red-500');
-                    ui.exportValidationMessage.textContent = "Please fill in 'Ship to Country' to copy.";
-                }
+            if (ui.exportCountry.value.trim() === '') {
+                ui.exportValidationMessage.classList.remove('hidden');
+                ui.exportValidationMessage.classList.add('text-red-500');
+                ui.exportValidationMessage.textContent = "Please fill in 'Ship to Country' to copy.";
                 return;
             }
 
-            if (ui.exportTextarea) ui.exportTextarea.select();
+            ui.exportTextarea.select();
             document.execCommand('copy');
-            if (ui.copyExportBtn) ui.copyExportBtn.textContent = 'Copied!';
-            setTimeout(() => { if (ui.copyExportBtn) ui.copyExportBtn.textContent = 'Copy Text'; }, 2000);
+            ui.copyExportBtn.textContent = 'Copied!';
+            setTimeout(() => { ui.copyExportBtn.textContent = 'Copy Text'; }, 2000);
         };
 
         function applyTheme(name) {
@@ -1674,9 +1604,9 @@
             root.style.setProperty('--color-secondary', theme.secondary);
             localStorage.setItem('selectedTheme', name);
 
-            if (ui.controlPanel) ui.controlPanel.classList.add('theme-bg-gradient');
-            if (ui.mainTitle) ui.mainTitle.classList.add('theme-text');
-            if (ui.subtitle) ui.subtitle.classList.add('theme-text');
+            ui.controlPanel.classList.add('theme-bg-gradient');
+            ui.mainTitle.classList.add('theme-text');
+            ui.subtitle.classList.add('theme-text');
 
             document.querySelectorAll('#theme-switcher button').forEach(btn => {
                 if (btn.dataset.themeName === name) {
@@ -1692,8 +1622,6 @@
         }
 
         function initThemes() {
-            if (!ui.themeSwitcher) return; // Defensive check
-
             Object.entries(THEMES).forEach(([name, theme]) => {
                 const bubble = document.createElement('button');
                 bubble.className = `w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-xl shadow-md transition-all hover:opacity-100`;
@@ -1718,51 +1646,50 @@
                 }
             };
 
-            if (inputElement) { // Defensive check
-                inputElement.addEventListener('input', function() {
-                    const value = this.value;
-                    closeAllLists();
-                    if (!value) return false;
-                    currentFocus = -1;
-                    
-                    const filtered = sourceArray.filter(item => item.toLowerCase().includes(value.toLowerCase()));
-                    if (filtered.length > 0) {
-                        suggestionsElement.classList.remove('hidden');
-                        filtered.forEach(item => {
-                            const div = document.createElement('div');
-                            div.textContent = item;
-                            div.className = 'suggestion-item';
-                            div.addEventListener('click', function() {
-                                inputElement.value = this.textContent;
-                                closeAllLists();
-                                inputElement.dispatchEvent(new Event('blur'));
-                            });
-                            suggestionsElement.appendChild(div);
+            inputElement.addEventListener('input', function() {
+                const value = this.value;
+                closeAllLists();
+                if (!value) return false;
+                currentFocus = -1;
+                
+                const filtered = sourceArray.filter(item => item.toLowerCase().includes(value.toLowerCase()));
+                if (filtered.length > 0) {
+                    suggestionsElement.classList.remove('hidden');
+                    filtered.forEach(item => {
+                        const div = document.createElement('div');
+                        div.textContent = item;
+                        div.className = 'suggestion-item';
+                        div.addEventListener('click', function() {
+                            inputElement.value = this.textContent;
+                            closeAllLists();
+                            inputElement.dispatchEvent(new Event('blur'));
                         });
-                    }
-                });
+                        suggestionsElement.appendChild(div);
+                    });
+                }
+            });
 
-                inputElement.addEventListener('keydown', function(e) {
-                    let items = suggestionsElement.getElementsByTagName('div');
-                    if (items.length === 0) return;
+            inputElement.addEventListener('keydown', function(e) {
+                let items = suggestionsElement.getElementsByTagName('div');
+                if (items.length === 0) return;
 
-                    if (e.keyCode === 40) { // Arrow DOWN
-                        currentFocus++;
-                        addActive(items);
-                    } else if (e.keyCode === 38) { // Arrow UP
-                        currentFocus--;
-                        addActive(items);
-                    } else if (e.keyCode === 13) { // Enter
-                        e.preventDefault();
-                        if (currentFocus > -1) {
-                            if (items) items[currentFocus].click();
-                        } else if (items.length === 1 && moveToNextConfig) {
-                            const nextField = document.getElementById(moveToNextConfig.nextFieldId);
-                            if(nextField) nextField.focus();
-                        }
+                if (e.keyCode === 40) { // Arrow DOWN
+                    currentFocus++;
+                    addActive(items);
+                } else if (e.keyCode === 38) { // Arrow UP
+                    currentFocus--;
+                    addActive(items);
+                } else if (e.keyCode === 13) { // Enter
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (items) items[currentFocus].click();
+                    } else if (items.length === 1 && moveToNextConfig) {
+                        items[0].click();
+                        const nextField = document.getElementById(moveToNextNextFieldId);
+                        if(nextField) nextField.focus();
                     }
-                });
-            }
+                }
+            });
 
             function addActive(items) {
                 if (!items) return false;
@@ -1780,7 +1707,7 @@
         }
         
         function updateMemberAlbumSuggestions() {
-            const groupName = ui.cardGroupInput ? ui.cardGroupInput.value : ''; // Defensive check
+            const groupName = ui.cardGroupInput.value;
             const groupData = ARTIST_DATA[groupName];
 
             if (groupData) {
@@ -1792,196 +1719,48 @@
             }
         }
 
-        // Wrap all UI element access and event listeners in DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', () => {
-            // Populate ui object after DOM is loaded
-            ui.grid = document.getElementById('photocard-grid');
-            ui.searchInput = document.getElementById('search');
-            ui.groupFilter = document.getElementById('groupFilter');
-            ui.statusFilter = document.getElementById('statusFilter');
-            ui.sortOrder = document.getElementById('sortOrder');
-            ui.addCardBtn = document.getElementById('add-card-btn');
-            ui.addCardForm = document.getElementById('add-card-form');
-            ui.modalTitle = document.getElementById('modal-title');
-            ui.mainTitle = document.getElementById('main-title');
-            ui.editTitleBtn = document.getElementById('edit-title-btn');
-            ui.adminLoginBtn = document.getElementById('admin-login-btn');
-            ui.adminLogoutBtn = document.getElementById('admin-logout-btn');
-            ui.deleteConfirmBtn = document.getElementById('confirm-delete-btn');
-            ui.titleEditInput = document.getElementById('title-edit-input');
-            ui.adminEmailInput = document.getElementById('admin-email-input');
-            ui.adminPasswordInput = document.getElementById('admin-password-input');
-            ui.adminLoginMessage = document.getElementById('admin-login-message');
-            ui.cardGroupInput = document.getElementById('card-group-input');
-            ui.cardMemberInput = document.getElementById('card-member-input');
-            ui.cardAlbumInput = document.getElementById('card-album-input');
-            ui.noResults = document.getElementById('no-results');
-            ui.statusFilterWrapper = document.getElementById('status-filter-wrapper');
-            ui.cartButton = document.getElementById('cart-button');
-            ui.cartCount = document.getElementById('cart-count');
-            ui.exportTextarea = document.getElementById('export-textarea');
-            ui.exportShipping = document.getElementById('export-shipping');
-            ui.exportCountry = document.getElementById('export-country');
-            ui.exportPayment = document.getElementById('export-payment');
-            ui.copyExportBtn = document.getElementById('copy-export-btn');
-            ui.bulkActionBar = document.getElementById('bulk-action-bar');
-            ui.bulkCount = document.getElementById('bulk-count');
-            ui.bulkPriceInput = document.getElementById('bulk-price-input');
-            ui.themeSwitcher = document.getElementById('theme-switcher');
-            ui.controlPanel = document.getElementById('control-panel');
-            ui.subtitle = document.getElementById('subtitle');
-            ui.editSubtitleBtn = document.getElementById('edit-subtitle-btn');
-            ui.subtitleEditInput = document.getElementById('subtitle-edit-input');
-            ui.groupSuggestions = document.getElementById('group-suggestions');
-            ui.memberSuggestions = document.getElementById('member-suggestions');
-            ui.albumSuggestions = document.getElementById('album-suggestions');
-            ui.cardDescriptionInput = document.getElementById('card-description-input');
-            ui.descriptionSuggestions = document.getElementById('description-suggestions');
-            ui.lastUpdatedDisplay = document.getElementById('last-updated-display');
-            ui.countrySuggestions = document.getElementById('country-suggestions');
-            ui.infoSheetContent = document.getElementById('info-sheet-content');
-            ui.infoSheetEditButton = document.getElementById('edit-info-sheet-btn');
-            ui.infoSheetEditTextarea = document.getElementById('info-sheet-edit-textarea');
-            ui.exportValidationMessage = document.getElementById('export-validation-message');
-            ui.totalCardsStat = document.getElementById('total-cards-stat');
-            ui.soldCardsStat = document.getElementById('sold-cards-stat');
-            ui.availableValueStat = document.getElementById('available-value-stat');
-            ui.soldValueStat = document.getElementById('sold-value-stat');
-            ui.openStatsModalBtn = document.getElementById('open-stats-modal-btn');
-            ui.reservedCardsStat = document.getElementById('reserved-cards-stat');
-            ui.onSaleCardsStat = document.getElementById('on-sale-cards-stat');
-            ui.onSuperSaleCardsStat = document.getElementById('on-super-sale-cards-stat');
-            ui.totalDiscountValueStat = document.getElementById('total-discount-value-stat');
-            ui.backToTopBtn = document.getElementById('back-to-top-btn');
-            ui.deselectAllBtn = document.getElementById('deselect-all-btn');
-            ui.disclaimerModal = document.getElementById('disclaimer-modal');
-            ui.disclaimerContentDiv = document.getElementById('disclaimer-content');
-            ui.disclaimerEditTextarea = document.getElementById('disclaimer-edit-textarea');
-            ui.editDisclaimerBtn = document.getElementById('edit-disclaimer-btn');
+        ui.adminPasswordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.checkAdminPassword();
+        });
+        
+        ui.cardGroupInput.addEventListener('blur', updateMemberAlbumSuggestions);
+        ui.cardMemberInput.addEventListener('blur', updateDisplayIdField);
 
-
-            // All event listeners and initial calls go here
-            if (ui.adminPasswordInput) {
-                ui.adminPasswordInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') window.checkAdminPassword();
-                });
+        ui.searchInput.addEventListener('input', displayCards);
+        ui.groupFilter.addEventListener('change', displayCards);
+        ui.statusFilter.addEventListener('change', displayCards);
+        ui.sortOrder.addEventListener('change', displayCards);
+        
+        ui.exportShipping.addEventListener('change', generateExportText);
+        ui.exportCountry.addEventListener('input', generateExportText);
+        ui.exportPayment.addEventListener('change', generateExportText);
+        
+        initThemes();
+        setupAutocomplete(ui.cardGroupInput, ui.groupSuggestions, Object.keys(ARTIST_DATA), { nextFieldId: 'card-member-input' });
+        setupAutocomplete(ui.exportCountry, ui.countrySuggestions, COUNTRY_LIST, null);
+        
+        ui.addCardBtn.addEventListener('click', () => {
+            const existingDescriptions = [...new Set(allCards.map(c => c.description).filter(d => d))];
+            setupAutocomplete(ui.cardDescriptionInput, ui.descriptionSuggestions, existingDescriptions, null);
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.autocomplete-container')) {
+                ui.groupSuggestions.classList.add('hidden');
+                ui.memberSuggestions.classList.add('hidden');
+                ui.albumSuggestions.classList.add('hidden');
+                ui.descriptionSuggestions.classList.add('hidden');
+                ui.countrySuggestions.classList.add('hidden');
             }
-            
-            if (ui.cardGroupInput) ui.cardGroupInput.addEventListener('blur', updateMemberAlbumSuggestions);
-            if (ui.cardMemberInput) ui.cardMemberInput.addEventListener('blur', updateDisplayIdField);
+        });
 
-            if (ui.searchInput) ui.searchInput.addEventListener('input', displayCards);
-            if (ui.groupFilter) ui.groupFilter.addEventListener('change', displayCards);
-            if (ui.statusFilter) ui.statusFilter.addEventListener('change', displayCards);
-            if (ui.sortOrder) ui.sortOrder.addEventListener('change', displayCards);
-            
-            if (ui.exportShipping) ui.exportShipping.addEventListener('change', generateExportText);
-            if (ui.exportCountry) ui.exportCountry.addEventListener('input', generateExportText);
-            if (ui.exportPayment) ui.exportPayment.addEventListener('change', generateExportText);
-            
-            initThemes();
-            setupAutocomplete(ui.cardGroupInput, ui.groupSuggestions, Object.keys(ARTIST_DATA), { nextFieldId: 'card-member-input' });
-            setupAutocomplete(ui.exportCountry, ui.countrySuggestions, COUNTRY_LIST, null);
-            
-            if (ui.addCardBtn) {
-                ui.addCardBtn.addEventListener('click', () => {
-                    const existingDescriptions = [...new Set(allCards.map(c => c.description).filter(d => d))];
-                    setupAutocomplete(ui.cardDescriptionInput, ui.descriptionSuggestions, existingDescriptions, null);
-                });
+        // Back to Top button logic
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) { // Show button after scrolling 200px
+                ui.backToTopBtn.classList.add('show');
+            } else {
+                ui.backToTopBtn.classList.remove('show');
             }
-            
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.autocomplete-container')) {
-                    if (ui.groupSuggestions) ui.groupSuggestions.classList.add('hidden');
-                    if (ui.memberSuggestions) ui.memberSuggestions.classList.add('hidden');
-                    if (ui.albumSuggestions) ui.albumSuggestions.classList.add('hidden');
-                    if (ui.descriptionSuggestions) ui.descriptionSuggestions.classList.add('hidden');
-                    if (ui.countrySuggestions) ui.countrySuggestions.classList.add('hidden');
-                }
-            });
-
-            // Back to Top button logic
-            window.addEventListener('scroll', () => {
-                if (ui.backToTopBtn) { // Check if element exists
-                    if (window.scrollY > 200) { // Show button after scrolling 200px
-                        ui.backToTopBtn.classList.add('show');
-                    } else {
-                        ui.backToTopBtn.classList.remove('show');
-                    }
-                }
-            });
-
-            // Initial Firestore listeners (moved inside DOMContentLoaded)
-            // This listener will now be managed by setAdminMode based on auth state
-            // onSnapshot(photocardsCollection, (snapshot) => {
-            //     allCards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            //     updateGroupFilter();
-            //     displayCards();
-            // }, (error) => {
-            //     console.error("Error fetching photocards: ", error);
-            //     showMessageBox('Error', `Failed to load cards: ${error.message}`);
-            // });
-
-            onSnapshot(settingsDoc, (doc) => {
-                const data = doc.exists() ? doc.data() : {};
-                if (ui.mainTitle) ui.mainTitle.textContent = data.title || "Photocard Sale";
-                if (ui.subtitle) ui.subtitle.textContent = data.subtitle || "Welcome to my collection! Feel free to browse.";
-                document.title = ui.mainTitle.textContent;
-                if (ui.lastUpdatedDisplay) {
-                    if (data.lastUpdated) {
-                        ui.lastUpdatedDisplay.textContent = `Last updated: ${data.lastUpdated}`;
-                        ui.lastUpdatedDisplay.classList.remove('hidden');
-                    } else {
-                        ui.lastUpdatedDisplay.classList.add('hidden');
-                    }
-                }
-            });
-
-            onSnapshot(infoSheetDoc, (doc) => {
-                const data = doc.exists() ? doc.data() : {};
-                if (ui.infoSheetContent) {
-                    ui.infoSheetContent.innerHTML = data.content || `
-                        <h4 class="text-lg font-semibold mb-2">How to Buy:</h4>
-                        <ol class="list-decimal list-inside space-y-1">
-                            <li>Browse the available photocards.</li>
-                            <li>Select the cards you'd like to purchase by clicking them.</li>
-                            <li>Click the shopping cart icon at the bottom right.</li>
-                            <li>Fill in your shipping and payment preferences.</li>
-                            <li>Copy the generated text and send it to me on Instagram!</li>
-                        </ol>
-                        <h4 class="text-lg font-semibold mt-4 mb-2">Payment Methods:</h4>
-                        <ul class="list-disc list-inside space-y-1">
-                            <li>PayPal F&F (Friends & Family) - preferred</li>
-                            <li>Wise (formerly TransferWise)</li>
-                            <li>Bank Transfer (within EU)</li>
-                        </ul>
-                        <h4 class="text-lg font-semibold mt-4 mb-2">Shipping Information:</h4>
-                        <ul class="list-disc list-inside space-y-1">
-                            <li>Shipping costs are not included in the listed prices and will be calculated based on your location and chosen shipping method.</li>
-                            <li>Options: Cheapest (untracked), Tracked, Insured.</li>
-                            <li>I ship worldwide!</li>
-                        </ul>
-                        <h4 class="text-lg font-semibold mt-4 mb-2">Condition:</h4>
-                        <p>All cards are carefully sleeved and stored in a dry, pet-free, and smoke-free household. While I strive for perfection, please note that some cards may have minor manufacturing defects or small imperfections. If you are highly sensitive to such details, I recommend refraining from purchasing.</p>
-                        <h4 class="text-lg font-semibold mt-4 mb-2">Contact:</h4>
-                        <p>For any questions or to finalize a purchase, please message me on <a href="https://www.instagram.com/bananatrades877/" target="_blank" class="text-blue-600 hover:underline">Instagram: @bananatrades877</a></p>
-                    `;
-                }
-            });
-
-            onSnapshot(disclaimerDoc, (doc) => {
-                const data = doc.exists() ? doc.data() : {};
-                if (ui.disclaimerContentDiv) {
-                    ui.disclaimerContentDiv.innerHTML = data.content || `
-                        <p>This website is not a commercial shop. It is a personal project to showcase and offer K-Pop photocards in an easy-to-view and user-friendly manner.</p>
-                        <p>I am operating as a private individual, not for profit or as a professional business. Therefore, all transactions exclude any rights for returns, warranty, or similar consumer guarantees.</p>
-                        <p>By proceeding, you acknowledge and agree to these terms.</p>
-                    `;
-                }
-            });
-
-            // Show disclaimer on page load if not acknowledged
-            window.showDisclaimerModal();
         });
 
     </script>
