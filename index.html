@@ -232,8 +232,7 @@
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-gray-800">
             <h3 class="text-2xl font-bold mb-4">Disclaimer & Terms of Use</h3>
             <div id="disclaimer-content" class="prose max-w-none text-sm mb-6 max-h-80 overflow-y-auto">
-                <!-- Disclaimer content will be loaded here from Firebase -->
-            </div>
+                </div>
             <div class="flex justify-between space-x-2">
                 <button onclick="window.declineDisclaimer()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Decline & Exit</button>
                 <button onclick="window.acceptDisclaimer()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Accept & Continue</button>
@@ -430,7 +429,6 @@
         </div>
     </div>
 
-    <!-- Stats Modal -->
     <div id="stats-modal" class="modal-backdrop hidden">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-gray-800">
             <h3 class="text-2xl font-bold mb-4">Statistics Overview</h3>
@@ -524,7 +522,6 @@
             <p class="text-gray-500 mt-2">Try changing your search or filter settings.</p>
         </div>
         
-        <!-- Footer Admin Controls and Timestamp (Moved here) -->
         <div id="footer-admin-controls" class="flex flex-col items-center">
             <div class="admin-buttons-group">
                 <button id="admin-login-btn" onclick="window.openModal('admin-login-modal')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
@@ -545,12 +542,10 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
     </button>
 
-    <!-- Deselect All Button -->
     <button id="deselect-all-btn" onclick="window.deselectAll()" class="floating-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
 
-    <!-- Back to Top Button -->
     <button id="back-to-top-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="floating-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
     </button>
@@ -886,7 +881,11 @@
                             <p class="text-sm line-clamp-2 opacity-80 min-height: 2.5rem;" title="` + (card.album || '') + `">` + (card.album || 'Unknown') + `</p>
                             <p class="text-xs mt-1 opacity-70 h-8 overflow-hidden">` + (card.description || '') + `</p>
                         </div>
-                        <p class="text-xl font-semibold mt-auto pt-2">€` + parseFloat(card.price || 0).toFixed(2) + `</p>
+                        <p class="text-xl font-semibold mt-auto pt-2 flex items-baseline">
+                            €` + parseFloat(card.price || 0).toFixed(2) + `
+                            ${card.discountType && card.originalPrice !== null && card.originalPrice !== undefined && card.originalPrice > card.price ?
+                                `<span class="text-sm line-through opacity-70 ml-2 font-normal">€${parseFloat(card.originalPrice).toFixed(2)}</span>` : ''}
+                        </p>
                     </div>`;
                 ui.grid.appendChild(cardElement);
             });
@@ -953,11 +952,12 @@
         onSnapshot(disclaimerDoc, (doc) => {
             const data = doc.exists() ? doc.data() : {};
             ui.disclaimerContent.innerHTML = data.content || `
-                <p class="font-semibold text-lg mb-2">Important Disclaimer & Terms of Use</p>
-                <p class="mb-2">This website is for the private presentation and sale of K-Pop photocards from my personal collection. It is NOT a professional shop, business, or commercial enterprise.</p>
-                <p class="mb-2">As a private seller, I operate without any profit motive and do not provide commercial warranties, return policies, or guarantees. All sales are final and "as is." While I strive to accurately describe and photograph all cards, minor imperfections may be present.</p>
-                <p class="mb-2">By continuing to use this site, you acknowledge and agree to these terms. If you do not agree, please exit the site.</p>
-                <p class="text-sm text-gray-500 mt-4">Thank you for your understanding.</p>
+                <p class="font-semibold text-lg mb-2">A Friendly Note About My Photocard Collection!</p>
+                <p class="mb-2">Welcome! This website is a personal space where I lovingly showcase K-Pop photocards from my own collection that are currently available. Think of it less as a traditional shop and more as a way for a fellow collector to browse my offerings easily.</p>
+                <p class="mb-2">As a private individual, I'm doing this purely out of passion for collecting, not as a business or for profit. This means all sales are considered private transactions and are final. I won't be able to offer returns, exchanges, or commercial warranties.</p>
+                <p class="mb-2">I always strive to keep my cards in excellent condition by carefully sleeving and storing them. I also do my best to describe and photograph each card accurately, but please keep in mind that minor manufacturing imperfections might occasionally be present.</p>
+                <p class="mb-2">By continuing to explore my collection, you're kindly acknowledging these terms. If you'd prefer not to proceed, that's perfectly alright, and you can exit the site.</p>
+                <p class="text-sm text-gray-500 mt-4">Thank you so much for your understanding and happy Browse!</p>
             `;
         });
 
@@ -1358,7 +1358,12 @@
         window.openDisclaimerEditModal = async () => {
             try {
                 const docSnap = await getDoc(disclaimerDoc);
-                ui.disclaimerEditTextarea.value = docSnap.exists() ? docSnap.data().content : '';
+                // Create a temporary div to convert HTML to plain text
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = ui.disclaimerContent.innerHTML;
+
+                // Populate with Firebase content if it exists and is not empty, otherwise use the currently displayed content's text
+                ui.disclaimerEditTextarea.value = (docSnap.exists() && docSnap.data().content) ? docSnap.data().content : tempDiv.textContent.trim();
                 window.openModal('disclaimer-edit-modal');
             } catch (error) {
                 console.error("Error opening disclaimer edit modal: ", error);
@@ -1527,13 +1532,32 @@
             }
         };
 
-        function calculateDiscountedPrice(price, type) {
-            const percentage = type === 'sale' ? 0.10 : 0.20;
-            let discountAmount = price * percentage;
-            if (discountAmount < 0.50) {
-                discountAmount = 0.50;
+        function calculateDiscountedPrice(originalPrice, type) {
+            const minFinalPrice = 1.00; // Global minimum price
+            let percentage;
+            let minDiscountAmount;
+
+            if (type === 'sale') {
+                percentage = 0.10;
+                minDiscountAmount = 0.50;
+            } else if (type === 'super-sale') {
+                percentage = 0.20;
+                minDiscountAmount = 1.00; // New minimum for 20% discount
+            } else {
+                return originalPrice; // Should not happen if 'type' is always 'sale' or 'super-sale'
             }
-            const newPrice = price - discountAmount;
+
+            let calculatedDiscountAmount = originalPrice * percentage;
+
+            // Apply minimum discount
+            let finalDiscountAmount = Math.max(calculatedDiscountAmount, minDiscountAmount);
+
+            let newPrice = originalPrice - finalDiscountAmount;
+
+            // Ensure price doesn't drop below minFinalPrice
+            newPrice = Math.max(newPrice, minFinalPrice);
+
+            // Round up to the nearest 0.50
             return Math.ceil(newPrice * 2) / 2;
         }
 
@@ -1762,9 +1786,9 @@
                     e.preventDefault();
                     if (currentFocus > -1) {
                         if (items) items[currentFocus].click();
-                    } else if (items.length === 1 && moveToNextConfig && moveToNextConfig.nextFieldId) { // Fixed line
+                    } else if (items.length === 1 && moveToNextConfig && moveToNextConfig.nextFieldId) { 
                         items[0].click();
-                        const nextField = document.getElementById(moveToNextConfig.nextFieldId); // Fixed line
+                        const nextField = document.getElementById(moveToNextConfig.nextFieldId); 
                         if(nextField) nextField.focus();
                     }
                 }
