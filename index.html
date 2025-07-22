@@ -228,6 +228,30 @@
 </head>
 <body class="text-gray-800">
 
+    <div id="disclaimer-modal" class="modal-backdrop hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-gray-800">
+            <h3 class="text-2xl font-bold mb-4">Disclaimer & Terms of Use</h3>
+            <div id="disclaimer-content" class="prose max-w-none text-sm mb-6 max-h-80 overflow-y-auto">
+                <!-- Disclaimer content will be loaded here from Firebase -->
+            </div>
+            <div class="flex justify-between space-x-2">
+                <button onclick="window.declineDisclaimer()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Decline & Exit</button>
+                <button onclick="window.acceptDisclaimer()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Accept & Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="disclaimer-edit-modal" class="modal-backdrop hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl text-gray-800">
+            <h3 class="text-xl font-bold mb-4">Edit Disclaimer Content</h3>
+            <textarea id="disclaimer-edit-textarea" class="w-full h-96 p-2 border border-gray-300 rounded-md mb-4 resize-y"></textarea>
+            <div class="flex justify-end space-x-2">
+                <button onclick="window.closeModal('disclaimer-edit-modal')" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
+                <button onclick="window.saveDisclaimerContent()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save Disclaimer</button>
+            </div>
+        </div>
+    </div>
+
     <div id="admin-login-modal" class="modal-backdrop hidden">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
             <h3 class="text-xl font-bold mb-4">Admin Login</h3>
@@ -443,7 +467,7 @@
             <div class="flex justify-center items-center gap-2 title-container">
                 <p id="subtitle" class="text-lg text-gray-600 mt-2 transition-colors duration-500">Welcome to my collection! Feel free to browse.</p>
                 <span id="edit-subtitle-btn" class="edit-pen hidden text-gray-500 mt-2" onclick="window.openSubtitleEditModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                 </span>
             </div>
         </header>
@@ -506,6 +530,7 @@
                 <button id="admin-login-btn" onclick="window.openModal('admin-login-modal')" class="px-3 py-1.5 bg-white text-gray-700 border border-gray-300 text-xs font-bold rounded-md hover:bg-gray-100">Admin</button>
                 <button id="admin-logout-btn" onclick="window.logoutAdmin()" class="hidden px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-md hover:bg-red-700">Exit Admin</button>
                 <button id="open-stats-modal-btn" onclick="window.openStatsModal()" class="hidden px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-md hover:bg-purple-700">View Stats</button>
+                <button id="edit-disclaimer-btn" onclick="window.openDisclaimerEditModal()" class="hidden px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-md hover:bg-orange-600">Edit Disclaimer</button>
             </div>
             <p id="last-updated-display" class="text-xs text-gray-500 mt-1"></p>
         </div>
@@ -597,6 +622,7 @@
         const photocardsCollection = collection(db, "photocards");
         const settingsDoc = doc(db, "settings", "main");
         const infoSheetDoc = doc(db, "settings", "infoSheet");
+        const disclaimerDoc = doc(db, "settings", "disclaimer"); // New disclaimer document
         // const adminSettingsDoc is no longer needed with Firebase Auth
 
         let allCards = [];
@@ -665,6 +691,10 @@
             totalDiscountValueStat: document.getElementById('total-discount-value-stat'),
             backToTopBtn: document.getElementById('back-to-top-btn'),
             deselectAllBtn: document.getElementById('deselect-all-btn'),
+            disclaimerModal: document.getElementById('disclaimer-modal'),
+            disclaimerContent: document.getElementById('disclaimer-content'),
+            disclaimerEditTextarea: document.getElementById('disclaimer-edit-textarea'),
+            editDisclaimerBtn: document.getElementById('edit-disclaimer-btn'),
         };
 
         // Utility function to darken a hex color
@@ -833,7 +863,7 @@
                     <div class="flex flex-col gap-1">
                         <button onclick="window.toggleDiscount('${card.id}', 'sale')" class="p-1 bg-red-500 text-white rounded-full hover:bg-red-600" title="Toggle 10% Sale"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></button>
                         <button onclick="window.toggleDiscount('${card.id}', 'super-sale')" class="p-1 bg-purple-700 text-white rounded-full hover:bg-purple-800" title="Toggle 20% Super Sale"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></button>
-                        <button onclick="window.openEditModal('${card.id}')" class="p-1 bg-blue-600 text-white rounded-full hover:bg-blue-700" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
+                        <button onclick="window.openEditModal('${card.id}')" class="p-1 bg-blue-600 text-white rounded-full hover:bg-blue-700" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
                         <button onclick="window.toggleStatus('${card.id}', 'sold')" class="p-1 bg-red-600 text-white rounded-full hover:bg-red-700" title="Toggle Sold"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></button>
                         <button onclick="window.toggleStatus('${card.id}', 'on-hold')" class="p-1 bg-yellow-500 text-white rounded-full hover:bg-yellow-600" title="Toggle Reserved"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></button>
                         <button onclick="window.openSingleDeleteModal('${card.id}')" class="p-1 bg-gray-700 text-white rounded-full hover:bg-gray-800" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
@@ -920,6 +950,17 @@
             `;
         });
 
+        onSnapshot(disclaimerDoc, (doc) => {
+            const data = doc.exists() ? doc.data() : {};
+            ui.disclaimerContent.innerHTML = data.content || `
+                <p class="font-semibold text-lg mb-2">Important Disclaimer & Terms of Use</p>
+                <p class="mb-2">This website is for the private presentation and sale of K-Pop photocards from my personal collection. It is NOT a professional shop, business, or commercial enterprise.</p>
+                <p class="mb-2">As a private seller, I operate without any profit motive and do not provide commercial warranties, return policies, or guarantees. All sales are final and "as is." While I strive to accurately describe and photograph all cards, minor imperfections may be present.</p>
+                <p class="mb-2">By continuing to use this site, you acknowledge and agree to these terms. If you do not agree, please exit the site.</p>
+                <p class="text-sm text-gray-500 mt-4">Thank you for your understanding.</p>
+            `;
+        });
+
         // Firebase Auth state listener
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -942,6 +983,7 @@
             ui.infoSheetEditButton.classList.toggle('hidden', !enabled);
             ui.infoSheetEditButton.classList.toggle('admin-visible', enabled);
             ui.openStatsModalBtn.classList.toggle('hidden', !enabled);
+            ui.editDisclaimerBtn.classList.toggle('hidden', !enabled); // Show/hide edit disclaimer button
             
             const soldOption = ui.statusFilter.querySelector('option[value="sold"]');
             if (soldOption) {
@@ -1311,6 +1353,43 @@
                 // No loading spinner to hide
             }
         };
+
+        // New Disclaimer functions
+        window.openDisclaimerEditModal = async () => {
+            try {
+                const docSnap = await getDoc(disclaimerDoc);
+                ui.disclaimerEditTextarea.value = docSnap.exists() ? docSnap.data().content : '';
+                window.openModal('disclaimer-edit-modal');
+            } catch (error) {
+                console.error("Error opening disclaimer edit modal: ", error);
+                showMessageBox('Error', `Failed to load disclaimer for editing: ${error.message}`);
+            }
+        };
+
+        window.saveDisclaimerContent = async () => {
+            const newContent = ui.disclaimerEditTextarea.value;
+            try {
+                await setDoc(disclaimerDoc, { content: newContent.trim() }, { merge: true });
+                await updateLastUpdatedTimestamp();
+                window.closeModal('disclaimer-edit-modal');
+            } catch (error) {
+                console.error("Error saving disclaimer content: ", error);
+                showMessageBox('Error', `Failed to save disclaimer: ${error.message}`);
+            }
+        };
+
+        window.acceptDisclaimer = () => {
+            localStorage.setItem('disclaimerAccepted', 'true');
+            window.closeModal('disclaimer-modal');
+            // Re-initialize site after acceptance
+            initApp(); 
+        };
+
+        window.declineDisclaimer = () => {
+            window.location.href = "https://www.google.com"; // Redirect if declined
+        };
+        // End New Disclaimer functions
+
 
         window.openModal = (id) => {
             document.getElementById(id).classList.remove('hidden');
@@ -1683,9 +1762,9 @@
                     e.preventDefault();
                     if (currentFocus > -1) {
                         if (items) items[currentFocus].click();
-                    } else if (items.length === 1 && moveToNextConfig) {
+                    } else if (items.length === 1 && moveToNextConfig && moveToNextConfig.nextFieldId) { // Fixed line
                         items[0].click();
-                        const nextField = document.getElementById(moveToNextNextFieldId);
+                        const nextField = document.getElementById(moveToNextConfig.nextFieldId); // Fixed line
                         if(nextField) nextField.focus();
                     }
                 }
@@ -1735,31 +1814,48 @@
         ui.exportCountry.addEventListener('input', generateExportText);
         ui.exportPayment.addEventListener('change', generateExportText);
         
-        initThemes();
-        setupAutocomplete(ui.cardGroupInput, ui.groupSuggestions, Object.keys(ARTIST_DATA), { nextFieldId: 'card-member-input' });
-        setupAutocomplete(ui.exportCountry, ui.countrySuggestions, COUNTRY_LIST, null);
-        
-        ui.addCardBtn.addEventListener('click', () => {
-            const existingDescriptions = [...new Set(allCards.map(c => c.description).filter(d => d))];
-            setupAutocomplete(ui.cardDescriptionInput, ui.descriptionSuggestions, existingDescriptions, null);
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.autocomplete-container')) {
-                ui.groupSuggestions.classList.add('hidden');
-                ui.memberSuggestions.classList.add('hidden');
-                ui.albumSuggestions.classList.add('hidden');
-                ui.descriptionSuggestions.classList.add('hidden');
-                ui.countrySuggestions.classList.add('hidden');
-            }
-        });
+        // Main initialization function
+        async function initApp() {
+            initThemes();
+            setupAutocomplete(ui.cardGroupInput, ui.groupSuggestions, Object.keys(ARTIST_DATA), { nextFieldId: 'card-member-input' });
+            setupAutocomplete(ui.exportCountry, ui.countrySuggestions, COUNTRY_LIST, null);
+            
+            ui.addCardBtn.addEventListener('click', () => {
+                const existingDescriptions = [...new Set(allCards.map(c => c.description).filter(d => d))];
+                setupAutocomplete(ui.cardDescriptionInput, ui.descriptionSuggestions, existingDescriptions, null);
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.autocomplete-container')) {
+                    ui.groupSuggestions.classList.add('hidden');
+                    ui.memberSuggestions.classList.add('hidden');
+                    ui.albumSuggestions.classList.add('hidden');
+                    ui.descriptionSuggestions.classList.add('hidden');
+                    ui.countrySuggestions.classList.add('hidden');
+                }
+            });
 
-        // Back to Top button logic
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) { // Show button after scrolling 200px
-                ui.backToTopBtn.classList.add('show');
+            // Back to Top button logic
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 200) { // Show button after scrolling 200px
+                    ui.backToTopBtn.classList.add('show');
+                } else {
+                    ui.backToTopBtn.classList.remove('show');
+                }
+            });
+        }
+
+
+        // Check disclaimer status on initial load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const disclaimerAccepted = localStorage.getItem('disclaimerAccepted');
+            if (disclaimerAccepted === 'true') {
+                initApp(); // Proceed with normal app initialization
             } else {
-                ui.backToTopBtn.classList.remove('show');
+                // Fetch disclaimer content and show modal
+                const docSnap = await getDoc(disclaimerDoc);
+                ui.disclaimerContent.innerHTML = docSnap.exists() ? docSnap.data().content : ui.disclaimerContent.innerHTML; // Fallback to default if no content in DB
+                ui.disclaimerModal.classList.remove('hidden');
             }
         });
 
