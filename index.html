@@ -828,9 +828,11 @@
                     cardOpacity = 'opacity-60 grayscale';
                 }
 
-                const showCheckbox = !isAdmin ? card.status !== 'sold' : true;
+                // Determine if the selection checkbox should be active/clickable
+                const isSelectionEnabled = isAdmin || (card.status !== 'sold' && card.status !== 'on-hold');
+
                 const selectionCheckbox = `
-                    <button onclick="window.toggleCardSelection('${card.id}')" class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/50 rounded-full text-indigo-600 hover:bg-white/80 transition z-20">
+                    <button onclick="window.toggleCardSelection('${card.id}')" class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/50 rounded-full text-indigo-600 hover:bg-white/80 transition z-20 ${!isSelectionEnabled ? 'opacity-50 cursor-not-allowed' : ''}" ${!isSelectionEnabled ? 'disabled' : ''}>
                         ${isSelected ? 
                             `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" class="text-red-500"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>` : 
                             `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`
@@ -869,7 +871,7 @@
                     <div class="relative">
                         <img src="${card.imageUrl || ''}" alt="${card.member || ''} from ${card.group || ''}" class="w-full h-auto object-cover aspect-[2/3] ${cardOpacity}" onerror="this.onerror=null;this.src='https://placehold.co/400x600/cccccc/ffffff?text=No+Image';">
                         <div class="absolute top-2 left-2 bg-black/50 text-xs font-mono px-1.5 py-0.5 rounded" style="color: ${memberColor};">${card.displayId || 'N/A'}</div>
-                        ${showCheckbox ? selectionCheckbox : ''}
+                        ${isSelectionEnabled ? selectionCheckbox : ''}
                         <div class="absolute bottom-2 right-2 flex flex-col items-end gap-1 z-10">
                             ${statusBadgesHtml ? `<div class="flex flex-col items-end gap-1">${statusBadgesHtml}</div>` : ''}
                             ${adminControls}
