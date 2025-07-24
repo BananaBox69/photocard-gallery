@@ -225,6 +225,7 @@
             gap: 3rem 1.5rem;
             padding: 0 2rem 10rem 2rem;
             perspective: 1500px;
+            justify-items: center; /* --- NEW: Center cards in their columns --- */
         }
         
         .loading-spinner {
@@ -595,14 +596,8 @@
         @media (max-width: 768px) {
             .main-header h1 { font-size: 2.5rem; }
             .controls-wrapper { padding: 1rem; }
-            .controls-bar { flex-direction: column; gap: 1rem; }
-            .controls-bar .search-box, 
-            .controls-bar .filter-group, 
-            .controls-bar .sort-group {
-                width: 100%;
-                justify-content: center;
-            }
-            .controls-bar input, .controls-bar select { width: 100%; }
+            .controls-bar { display: none; } /* Hide desktop bar */
+            .mobile-controls { display: block; } /* Show mobile button */
             :root { --card-width: 160px; }
             #card-grid { gap: 2rem 1rem; padding: 0 1rem 10rem 1rem; }
             .floating-bar { width: calc(100% - 2rem); }
@@ -840,7 +835,7 @@
         </div>
     </div>
 
-    <!-- NEW: Login Modal -->
+    <!-- Login Modal -->
     <div id="login-modal" class="modal-overlay">
         <div class="modal neo-ui">
             <div class="modal-header">
