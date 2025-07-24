@@ -162,7 +162,8 @@
             align-items: center; justify-content: center;
         }
         
-        body[class*="theme-"] .controls-bar {
+        body[class*="theme-"] .controls-bar,
+        body[class*="theme-"] #mobile-filter-btn {
             --shadow-color: var(--theme-color-primary);
             border-color: var(--theme-color-primary);
         }
@@ -225,7 +226,7 @@
             gap: 3rem 1.5rem;
             padding: 0 2rem 10rem 2rem;
             perspective: 1500px;
-            justify-items: center; /* --- NEW: Center cards in their columns --- */
+            justify-items: center;
         }
         
         .loading-spinner {
@@ -593,11 +594,13 @@
         /* ------------------- */
         /* --- RESPONSIVE DESIGN --- */
         /* ------------------- */
+        .mobile-controls { display: none; }
+
         @media (max-width: 768px) {
             .main-header h1 { font-size: 2.5rem; }
             .controls-wrapper { padding: 1rem; }
-            .controls-bar { display: none; } /* Hide desktop bar */
-            .mobile-controls { display: block; } /* Show mobile button */
+            .controls-bar { display: none; }
+            .mobile-controls { display: block; }
             :root { --card-width: 160px; }
             #card-grid { gap: 2rem 1rem; padding: 0 1rem 10rem 1rem; }
             .floating-bar { width: calc(100% - 2rem); }
