@@ -719,16 +719,16 @@
                 /* Subtle glitter effect with repeating radial gradients */
                 background: repeating-radial-gradient(
                     circle at center,
-                    rgba(255, 255, 255, 0.1) 0%, /* Small, subtle white dots */
-                    transparent 1%, /* Transparent around dots */
-                    transparent 10% /* Wider transparent area */
+                    rgba(255, 255, 255, 0.2) 0%, /* Slightly increased opacity */
+                    transparent 1.5%, /* Slightly larger transparent area */
+                    transparent 8% /* Adjusted wider transparent area */
                 );
-                background-size: 20% 20%; /* Size of each repeating glitter cell */
+                background-size: 25% 25%; /* Slightly larger glitter cells */
                 animation: mobile-glitter 2s infinite alternate; /* Animate opacity for a twinkling effect */
                 z-index: 4;
                 mix-blend-mode: overlay; /* Blend with card image */
                 pointer-events: none;
-                opacity: 0.8; /* Base opacity */
+                opacity: 0.9; /* Slightly higher base opacity */
             }
 
             @keyframes mobile-glitter {
@@ -1513,8 +1513,35 @@
                     toggleCardSelection(cardElement, docId);
                 } else if (isLeftHalfClick) {
                     // Tapping the left half toggles text visibility
+                    const cardTextElement = cardElement.querySelector('.card-info .card-text');
+                    if (!cardTextElement) return; // Safety check
+
                     const isTextCurrentlyHidden = cardElement.dataset.mobileTextHidden !== "false";
-                    cardElement.dataset.mobileTextHidden = (!isTextCurrentlyHidden).toString();
+                    
+                    if (isTextCurrentlyHidden) {
+                        // Show text: temporarily set max-height to none to get scrollHeight, then set explicit height
+                        cardTextElement.style.maxHeight = 'none'; // Allow content to dictate height
+                        const scrollHeight = cardTextElement.scrollHeight; // Get natural height
+                        cardTextElement.style.maxHeight = '0px'; // Reset to 0 for transition
+                        // Use requestAnimationFrame to ensure reflow before setting final height
+                        requestAnimationFrame(() => {
+                            cardTextElement.style.maxHeight = `${scrollHeight}px`;
+                            cardTextElement.style.opacity = '1';
+                            cardTextElement.style.paddingTop = '10px';
+                            cardTextElement.style.paddingBottom = '10px';
+                        });
+                        cardElement.dataset.mobileTextHidden = "false";
+                    } else {
+                        // Hide text: set explicit height to current height, then transition to 0
+                        cardTextElement.style.maxHeight = `${cardTextElement.scrollHeight}px`; // Set current height explicitly
+                        requestAnimationFrame(() => {
+                            cardTextElement.style.maxHeight = '0px';
+                            cardTextElement.style.opacity = '0';
+                            cardTextElement.style.paddingTop = '0px';
+                            cardTextElement.style.paddingBottom = '0px';
+                        });
+                        cardElement.dataset.mobileTextHidden = "true";
+                    }
                 } else {
                     // Tapping the right half toggles selection
                     toggleCardSelection(cardElement, docId);
