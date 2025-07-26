@@ -716,8 +716,7 @@
             #card-grid { 
                 grid-template-columns: repeat(2, 1fr); /* Explicitly 2 columns */
                 /* Calculate card width based on header content width (100vw - 4rem padding) */
-                /* For 2 cards and 1rem gap: (100vw - 3rem) / 2 = (100vw - 5rem) / 2 */
-                width: calc(100vw - 3rem); /* Adjusted to match content width of header with 1.5rem total padding */
+                width: calc(100vw - 4rem); /* Match header content width (2rem padding on each side) */
                 margin: 3rem auto 0 auto; /* Center the grid itself, add top margin */
                 gap: 1rem; /* Increased gap between cards */
                 padding: 0 0 10rem 0; /* Remove horizontal padding from grid, keep bottom */
