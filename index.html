@@ -67,7 +67,7 @@
             line-height: 1.6;
             transition: background-image 0.5s ease;
             overflow-x: hidden;
-            background-image: url("data:image/svg+xml,%3Csvg width='150' height='150' viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='15' y='30' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E🐰%3C/text%3E%3Ctext x='90' y='20' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E🐻%3C/text%3E%3Ctext x='50' y='90' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E🐿️%3C/text%3E%3Ctext x='130' y='70' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E🐥%3C/text%3E%3Ctext x='30' y='130' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E🐢%3C/text%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='150' height='150' viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='15' y='30' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E%F0%9F%90%B0%3C/text%3E%3Ctext x='90' y='20' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E%F0%9F%90%BB%3C/text%3E%3Ctext x='50' y='90' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E%F0%9F%90%BB%3C/text%3E%3Ctext x='130' y='70' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E%F0%9F%90%A4%3C/text%3E%3Ctext x='30' y='130' font-size='15' fill-opacity='0.3' fill='%23d8d8e3' text-anchor='middle'%3E%F0%9F%90%A2%3C/text%3E%3C/svg%3E");
         }
         
         /* Neobrutalism UI Style */
@@ -162,8 +162,7 @@
             align-items: center; justify-content: center;
         }
         
-        body[class*="theme-"] .controls-bar,
-        body[class*="theme-"] #mobile-filter-btn {
+        body[class*="theme-"] .controls-bar {
             --shadow-color: var(--theme-color-primary);
             border-color: var(--theme-color-primary);
         }
@@ -226,7 +225,7 @@
             gap: 3rem 1.5rem;
             padding: 0 2rem 10rem 2rem;
             perspective: 1500px;
-            justify-items: center;
+            justify-items: center; /* Center cards horizontally */
         }
         
         .loading-spinner {
@@ -298,21 +297,38 @@
         }
         .photocard:hover::before { opacity: 0.6; }
 
+        /* Rare card sheen animation */
         .photocard.rare::after {
             content: '';
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
             background-image: radial-gradient(
-                circle at calc(var(--mx) * 100%) calc(var(--my) * 100%),
-                rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 50%
+                circle at var(--mx-anim) var(--my-anim),
+                var(--member-shadow-color) 0%, rgba(255, 255, 255, 0) 50%
             );
-            background-size: 100% 100%;
-            background-position: center;
-            z-index: 4; mix-blend-mode: color-dodge; opacity: 0;
+            background-size: 200% 200%; /* Make the gradient larger for movement */
+            background-position: var(--mx-pos) var(--my-pos); /* Control position with custom properties */
+            z-index: 4; 
+            mix-blend-mode: hard-light; /* More vibrant blend */
+            opacity: 0.3; /* Default opacity when not hovered */
             transition: opacity 0.4s ease;
             pointer-events: none;
+            animation: rare-sheen-animation 4s infinite ease-in-out; /* Auto-play animation */
         }
-        .photocard.rare:hover::after { opacity: 0.8; }
+
+        .photocard.rare:hover::after { 
+            opacity: 0.8; /* Increase opacity on hover */
+            animation-play-state: paused; /* Pause auto-play animation on hover */
+            background-position: calc((var(--mx) - 0.5) * 100%) calc((var(--my) - 0.5) * 100%); /* Use mouse position on hover */
+        }
+
+        @keyframes rare-sheen-animation {
+            0% { --mx-anim: 20%; --my-anim: 20%; --mx-pos: 0% 0%; opacity: 0.3; }
+            25% { --mx-anim: 80%; --my-anim: 30%; --mx-pos: 100% 0%; opacity: 0.4; }
+            50% { --mx-anim: 50%; --my-anim: 80%; --mx-pos: 50% 100%; opacity: 0.3; }
+            75% { --mx-anim: 30%; --my-anim: 70%; --mx-pos: 0% 100%; opacity: 0.4; }
+            100% { --mx-anim: 20%; --my-anim: 20%; --mx-pos: 0% 0%; opacity: 0.3; }
+        }
 
         .photocard.rare {
             --rare-glow-color: var(--member-shadow-color);
@@ -555,18 +571,18 @@
         .admin-card-controls button:hover { background-color: var(--theme-color-primary); }
         
         .form-group { margin-bottom: 1rem; position: relative; }
-        #admin-form label, .checkout-form label, #login-form label {
+        #admin-form label, .checkout-form label, #login-form label, #filters-modal label {
             display: block; margin-bottom: 0.5rem;
             font-weight: 600; font-size: 0.9rem;
             color: var(--color-text-muted);
         }
-        #admin-form input, #admin-form select, .checkout-form input, .checkout-form select, #login-form input { width: 100%; }
+        #admin-form input, #admin-form select, .checkout-form input, .checkout-form select, #login-form input, #filters-modal input, #filters-modal select { width: 100%; }
         #admin-form input[type="checkbox"] { width: auto; }
         #card-id[readonly] { background-color: var(--color-bg); cursor: not-allowed; }
         
         #admin-form #card-price { max-width: 150px; }
         
-        #admin-form .form-buttons {
+        #admin-form .form-buttons, #filters-modal .form-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
@@ -594,27 +610,47 @@
         /* ------------------- */
         /* --- RESPONSIVE DESIGN --- */
         /* ------------------- */
-        .mobile-controls { display: none; }
-
         @media (max-width: 768px) {
             .main-header h1 { font-size: 2.5rem; }
-            .controls-wrapper { padding: 1rem; }
-            .controls-bar { display: none; }
-            .mobile-controls { display: block; }
-            :root { --card-width: 160px; }
-            #card-grid { gap: 2rem 1rem; padding: 0 1rem 10rem 1rem; }
+            /* Hide the main controls bar on smaller screens */
+            .controls-wrapper { display: none; } 
+            
+            /* Make modals full width on mobile */
+            .modal {
+                width: calc(100% - 2rem); /* Full width with padding */
+                margin: 1rem; /* Add some margin around the modal */
+            }
             .floating-bar { width: calc(100% - 2rem); }
+            .floating-buttons { right: 10px; bottom: 10px; gap: 0.8rem; }
+            .float-btn { width: 45px; height: 45px; font-size: 1.3rem; }
         }
 
         @media (max-width: 480px) {
             .main-header h1 { font-size: 2rem; }
             .bias-title { font-size: 1rem; }
             .bias-bubble { width: 40px; height: 40px; font-size: 1.1rem; }
-            :root { --card-width: 150px; }
+            /* Two cards per row, centered */
+            :root { --card-width: calc(50% - 0.75rem); } /* 2 cards with 1.5rem gap */
+            #card-grid { 
+                gap: 2rem 1.5rem; /* Adjust gap for 2 columns */
+                padding: 0 0.75rem 10rem 0.75rem; /* Adjust padding to match gap */
+            }
             .floating-bar .selection-info { font-size: 0.9rem; }
             .floating-bar .actions { gap: 0.5rem; }
             .btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
             .bulk-actions-container { justify-content: center; }
+
+            /* Filters modal specific adjustments for very small screens */
+            #filters-modal .modal .modal-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            #filters-modal .modal .modal-content .search-box,
+            #filters-modal .modal .modal-content .filter-group,
+            #filters-modal .modal .modal-content .sort-group {
+                width: 100%;
+                justify-content: flex-start; /* Align elements to start */
+            }
         }
         
         /* --- END OF CSS --- */
@@ -658,33 +694,33 @@
         <button id="logout-btn" class="btn"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
     </div>
     
-    <!-- Controls Bar -->
+    <!-- Controls Bar (Desktop Only) -->
     <div class="controls-wrapper">
         <div class="controls-bar neo-ui">
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" placeholder="Search member, album...">
+                <input type="text" id="search-input-desktop" placeholder="Search member, album...">
             </div>
             <div class="filter-group">
-                <select id="group-filter">
+                <select id="group-filter-desktop">
                     <option value="all">All Groups</option>
                     <option value="Red Velvet">Red Velvet</option>
                     <option value="IU">IU</option>
                     <option value="aespa">aespa</option>
                 </select>
-                <select id="member-filter">
+                <select id="member-filter-desktop">
                     <option value="all">All Members</option>
                 </select>
-                <select id="status-filter">
+                <select id="status-filter-desktop">
                     <option value="available">Available Only</option>
                     <option value="all">All Statuses</option>
                     <option value="reserved">Reserved</option>
-                    <option value="sold" id="status-filter-sold">Sold</option>
+                    <option value="sold" id="status-filter-sold-desktop">Sold</option>
                 </select>
             </div>
             <div class="sort-group">
                 <i class="fa-solid fa-arrow-down-wide-short"></i>
-                <select id="sort-by">
+                <select id="sort-by-desktop">
                     <option value="default">Default</option>
                     <option value="date-desc">Newest</option>
                     <option value="price-asc">Price: Low to High</option>
@@ -710,6 +746,7 @@
     <div class="floating-buttons">
         <button id="info-btn" class="float-btn neo-ui" title="Sale Info"><i class="fa-solid fa-circle-info"></i></button>
         <button id="admin-toggle-btn" class="float-btn neo-ui" title="Toggle Admin Mode"><i class="fa-solid fa-user-shield"></i></button>
+        <button id="filter-toggle-btn" class="float-btn neo-ui" title="Filters"><i class="fa-solid fa-sliders"></i></button> <!-- New filter button -->
         <button id="back-to-top" class="float-btn neo-ui" title="Back to Top"><i class="fa-solid fa-arrow-up"></i></button>
     </div>
 
@@ -802,7 +839,7 @@
                     <label for="card-group">Group</label>
                     <input type="text" id="card-group" autocomplete="off" required>
                 </div>
-                 <div class="form-group">
+                   <div class="form-group">
                     <label for="card-member">Member</label>
                     <input type="text" id="card-member" autocomplete="off" required>
                 </div>
@@ -810,19 +847,19 @@
                     <label for="card-id">Card ID (Auto-generated)</label>
                     <input type="text" id="card-id" readonly required>
                 </div>
-                 <div class="form-group">
+                   <div class="form-group">
                     <label for="card-album">Album / Origin</label>
                     <input type="text" id="card-album" autocomplete="off" required>
                 </div>
-                 <div class="form-group">
+                   <div class="form-group">
                     <label for="card-version">Version / Description</label>
                     <input type="text" id="card-version" autocomplete="off" required>
                 </div>
-                 <div class="form-group">
+                   <div class="form-group">
                     <label for="card-image-url">Image URL</label>
                     <input type="url" id="card-image-url" required>
                 </div>
-                 <div class="form-group">
+                   <div class="form-group">
                     <label for="card-price">Price (€)</label>
                     <input type="number" id="card-price" step="0.5" min="1" required>
                 </div>
@@ -838,7 +875,7 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
+    <!-- NEW: Login Modal -->
     <div id="login-modal" class="modal-overlay">
         <div class="modal neo-ui">
             <div class="modal-header">
@@ -857,6 +894,59 @@
                 <button type="submit" class="btn">Log In</button>
                 <p id="login-error"></p>
             </form>
+        </div>
+    </div>
+
+    <!-- NEW: Filters Modal (for Mobile) -->
+    <div id="filters-modal" class="modal-overlay">
+        <div class="modal neo-ui">
+            <div class="modal-header">
+                <h2>Filters & Sorting</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="form-group search-box">
+                    <label for="search-input-mobile"><i class="fa-solid fa-magnifying-glass"></i> Search</label>
+                    <input type="text" id="search-input-mobile" placeholder="Search member, album...">
+                </div>
+                <div class="form-group filter-group">
+                    <label for="group-filter-mobile">Group</label>
+                    <select id="group-filter-mobile">
+                        <option value="all">All Groups</option>
+                        <option value="Red Velvet">Red Velvet</option>
+                        <option value="IU">IU</option>
+                        <option value="aespa">aespa</option>
+                    </select>
+                </div>
+                <div class="form-group filter-group">
+                    <label for="member-filter-mobile">Member</label>
+                    <select id="member-filter-mobile">
+                        <option value="all">All Members</option>
+                    </select>
+                </div>
+                <div class="form-group filter-group">
+                    <label for="status-filter-mobile">Status</label>
+                    <select id="status-filter-mobile">
+                        <option value="available">Available Only</option>
+                        <option value="all">All Statuses</option>
+                        <option value="reserved">Reserved</option>
+                        <option value="sold" id="status-filter-sold-mobile">Sold</option>
+                    </select>
+                </div>
+                <div class="form-group sort-group">
+                    <label for="sort-by-mobile"><i class="fa-solid fa-arrow-down-wide-short"></i> Sort By</label>
+                    <select id="sort-by-mobile">
+                        <option value="default">Default</option>
+                        <option value="date-desc">Newest</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                    </select>
+                </div>
+                <div class="form-buttons">
+                    <button id="apply-filters-btn" class="btn">Apply Filters</button>
+                    <button id="reset-filters-btn" class="btn btn-secondary">Reset Filters</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -910,11 +1000,20 @@
         let METADATA = {}; // Will be populated from Firestore
 
         // --- DOM ELEMENTS ---
-        const searchInput = document.getElementById('search-input');
-        const groupFilter = document.getElementById('group-filter');
-        const memberFilter = document.getElementById('member-filter');
-        const statusFilter = document.getElementById('status-filter');
-        const sortBy = document.getElementById('sort-by');
+        // Desktop controls
+        const searchInputDesktop = document.getElementById('search-input-desktop');
+        const groupFilterDesktop = document.getElementById('group-filter-desktop');
+        const memberFilterDesktop = document.getElementById('member-filter-desktop');
+        const statusFilterDesktop = document.getElementById('status-filter-desktop');
+        const sortByDesktop = document.getElementById('sort-by-desktop');
+
+        // Mobile controls (inside modal)
+        const searchInputMobile = document.getElementById('search-input-mobile');
+        const groupFilterMobile = document.getElementById('group-filter-mobile');
+        const memberFilterMobile = document.getElementById('member-filter-mobile');
+        const statusFilterMobile = document.getElementById('status-filter-mobile');
+        const sortByMobile = document.getElementById('sort-by-mobile');
+
         const floatingBar = document.getElementById('floating-bar');
         const selectionInfo = document.getElementById('selection-info');
 
@@ -944,7 +1043,7 @@
                 
                 allCards = querySnapshot.docs.map(doc => ({ ...doc.data(), docId: doc.id }));
                 
-                populateMemberFilter();
+                populateMemberFilters(); // Populate both desktop and mobile member filters
                 applyFiltersAndSort();
                 
             } catch (error) {
@@ -996,7 +1095,7 @@
             container.className = 'card-container';
             container.dataset.docId = card.docId;
             
-            const memberColor = MEMBER_COLORS[card.member] || { end: 'var(--shadow-color)', rgb: '26, 26, 46' };
+            const memberColor = MEMBER_COLORS[card.member] || { start: 'var(--shadow-color)', end: 'var(--shadow-color)', rgb: '26, 26, 46' };
             container.style.setProperty('--member-shadow-color', memberColor.end);
             container.style.setProperty('--rare-glow-color', memberColor.end);
 
@@ -1077,10 +1176,19 @@
 
         function applyFiltersAndSort() {
             let filteredCards = [...allCards];
-            const searchTerm = searchInput.value.toLowerCase();
-            const selectedGroup = groupFilter.value;
-            const selectedMember = memberFilter.value;
-            const selectedStatus = statusFilter.value;
+            
+            // Determine which set of controls to use (desktop or mobile modal)
+            const isMobileView = window.innerWidth <= 768; // Based on CSS media query
+            const currentSearchInput = isMobileView ? searchInputMobile : searchInputDesktop;
+            const currentGroupFilter = isMobileView ? groupFilterMobile : groupFilterDesktop;
+            const currentMemberFilter = isMobileView ? memberFilterMobile : memberFilterDesktop;
+            const currentStatusFilter = isMobileView ? statusFilterMobile : statusFilterDesktop;
+            const currentSortBy = isMobileView ? sortByMobile : sortByDesktop;
+
+            const searchTerm = currentSearchInput.value.toLowerCase();
+            const selectedGroup = currentGroupFilter.value;
+            const selectedMember = currentMemberFilter.value;
+            const selectedStatus = currentStatusFilter.value;
 
             if (searchTerm) {
                 filteredCards = filteredCards.filter(c =>
@@ -1094,7 +1202,7 @@
             if (selectedMember !== 'all') filteredCards = filteredCards.filter(c => c.member === selectedMember);
             if (selectedStatus !== 'all') filteredCards = filteredCards.filter(c => c.status === selectedStatus);
             
-            const sortValue = sortBy.value;
+            const sortValue = currentSortBy.value;
             let sortedCards;
 
             if (sortValue === 'default') {
@@ -1128,19 +1236,35 @@
             renderCards(sortedCards);
         }
 
-        function populateMemberFilter() {
-            const selectedGroup = groupFilter.value;
-            const members = new Set();
-            const sourceCards = (selectedGroup === 'all') ? allCards : allCards.filter(c => c.group === selectedGroup);
-            sourceCards.forEach(card => members.add(card.member));
-            const sortedMembers = Array.from(members).sort();
+        function populateMemberFilters() {
+            // Populate desktop member filter
+            let selectedGroupDesktop = groupFilterDesktop.value;
+            let membersDesktop = new Set();
+            let sourceCardsDesktop = (selectedGroupDesktop === 'all') ? allCards : allCards.filter(c => c.group === selectedGroupDesktop);
+            sourceCardsDesktop.forEach(card => membersDesktop.add(card.member));
+            let sortedMembersDesktop = Array.from(membersDesktop).sort();
 
-            memberFilter.innerHTML = '<option value="all">All Members</option>';
-            sortedMembers.forEach(member => {
+            memberFilterDesktop.innerHTML = '<option value="all">All Members</option>';
+            sortedMembersDesktop.forEach(member => {
                 const option = document.createElement('option');
                 option.value = member;
                 option.textContent = member;
-                memberFilter.appendChild(option);
+                memberFilterDesktop.appendChild(option);
+            });
+
+            // Populate mobile member filter
+            let selectedGroupMobile = groupFilterMobile.value;
+            let membersMobile = new Set();
+            let sourceCardsMobile = (selectedGroupMobile === 'all') ? allCards : allCards.filter(c => c.group === selectedGroupMobile);
+            sourceCardsMobile.forEach(card => membersMobile.add(card.member));
+            let sortedMembersMobile = Array.from(membersMobile).sort();
+
+            memberFilterMobile.innerHTML = '<option value="all">All Members</option>';
+            sortedMembersMobile.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member;
+                option.textContent = member;
+                memberFilterMobile.appendChild(option);
             });
         }
         
@@ -1195,6 +1319,14 @@
         function openModal(modalId, card = null) {
             if (modalId === 'admin-modal') {
                 openAdminForm(card);
+            } else if (modalId === 'filters-modal') {
+                // Sync mobile filters with desktop filters before opening
+                searchInputMobile.value = searchInputDesktop.value;
+                groupFilterMobile.value = groupFilterDesktop.value;
+                populateMemberFilters(); // Re-populate mobile member filter based on mobile group filter
+                memberFilterMobile.value = memberFilterDesktop.value;
+                statusFilterMobile.value = statusFilterDesktop.value;
+                sortByMobile.value = sortByDesktop.value;
             }
             document.getElementById(modalId).classList.add('visible');
         }
@@ -1226,13 +1358,21 @@
             isAdmin = isLoggedIn;
             document.body.classList.toggle('admin-mode', isLoggedIn);
             
-            const soldOption = document.getElementById('status-filter-sold');
+            const soldOptionDesktop = document.getElementById('status-filter-sold-desktop');
+            const soldOptionMobile = document.getElementById('status-filter-sold-mobile');
+
             if (isLoggedIn) {
-                soldOption.style.display = 'block';
+                soldOptionDesktop.style.display = 'block';
+                soldOptionMobile.style.display = 'block';
             } else {
-                soldOption.style.display = 'none';
-                if (statusFilter.value === 'sold') {
-                    statusFilter.value = 'available';
+                soldOptionDesktop.style.display = 'none';
+                soldOptionMobile.style.display = 'none';
+                if (statusFilterDesktop.value === 'sold') {
+                    statusFilterDesktop.value = 'available';
+                    applyFiltersAndSort();
+                }
+                if (statusFilterMobile.value === 'sold') {
+                    statusFilterMobile.value = 'available';
                     applyFiltersAndSort();
                 }
             }
@@ -1280,7 +1420,7 @@
             input.addEventListener('focus', showSuggestions);
 
             document.addEventListener('click', (e) => {
-                if (e.target !== input) {
+                if (e.target !== input && !suggestionsContainer.contains(e.target)) {
                     suggestionsContainer.style.display = 'none';
                 }
             });
@@ -1349,7 +1489,9 @@
                 discount: 0
             };
             if (cardData.id.includes('Select')) {
-                alert('Please ensure a valid ID is generated.'); return;
+                // Use a custom message box instead of alert
+                showMessageBox('Please ensure a valid ID is generated.', 'Error');
+                return;
             }
             try {
                 if (docId) await updateDoc(doc(db, 'cards', docId), cardData);
@@ -1368,32 +1510,55 @@
                 fetchAndRenderCards();
             } catch (error) {
                 console.error("Error saving card: ", error);
-                alert("Error saving card. Check console for details.");
+                showMessageBox("Error saving card. Check console for details.", 'Error');
             }
         }
         
         async function handleDeleteCard(docId) {
-            if (confirm('Permanently delete this card?')) {
+            // Use a custom message box for confirmation
+            showConfirmationBox('Permanently delete this card?', async () => {
                 try {
                     await deleteDoc(doc(db, "cards", docId));
                     fetchAndRenderCards();
                 } catch (error) {
                     console.error("Error deleting card:", error);
-                    alert("Could not delete card.");
+                    showMessageBox("Could not delete card.", 'Error');
                 }
-            }
+            });
         }
 
         async function handleBulkAction(action) {
-            if (!action || selectedCards.size === 0) return alert("Please select an action and at least one card.");
-            if (action === 'delete' && !confirm(`Delete ${selectedCards.size} cards? This cannot be undone.`)) return;
+            if (!action || selectedCards.size === 0) {
+                showMessageBox("Please select an action and at least one card.", 'Info');
+                return;
+            }
+            if (action === 'delete') {
+                showConfirmationBox(`Delete ${selectedCards.size} cards? This cannot be undone.`, async () => {
+                    loadingSpinner.style.display = 'block';
+                    const promises = [];
+                    selectedCards.forEach(docId => {
+                        const cardRef = doc(db, 'cards', docId);
+                        promises.push(deleteDoc(cardRef));
+                    });
+                    try {
+                        await Promise.all(promises);
+                    } catch (error) {
+                        console.error("Error with bulk action: ", error);
+                        showMessageBox("Error performing bulk delete. Check console for details.", 'Error');
+                    } finally {
+                        selectedCards.clear();
+                        updateFloatingBar();
+                        fetchAndRenderCards();
+                    }
+                });
+                return;
+            }
 
             loadingSpinner.style.display = 'block';
             const promises = [];
             selectedCards.forEach(docId => {
                 const cardRef = doc(db, 'cards', docId);
-                if (action === 'delete') promises.push(deleteDoc(cardRef));
-                else if (action.startsWith('set-')) promises.push(updateDoc(cardRef, { status: action.split('-')[1] }));
+                if (action.startsWith('set-')) promises.push(updateDoc(cardRef, { status: action.split('-')[1] }));
                 else if (action.startsWith('discount-')) promises.push(updateDoc(cardRef, { discount: parseInt(action.split('-')[1]) }));
                 else if (action === 'toggle-rare') {
                     const card = allCards.find(c => c.docId === docId);
@@ -1405,12 +1570,72 @@
                 await Promise.all(promises);
             } catch (error) {
                 console.error("Error with bulk action: ", error);
+                showMessageBox("Error performing bulk action. Check console for details.", 'Error');
             } finally {
                 selectedCards.clear();
                 updateFloatingBar();
                 fetchAndRenderCards();
             }
         }
+
+        // Custom Message Box and Confirmation Box
+        function showMessageBox(message, type = 'Info') {
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'modal-overlay visible';
+            modalOverlay.innerHTML = `
+                <div class="modal neo-ui">
+                    <div class="modal-header">
+                        <h2>${type}</h2>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <p>${message}</p>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                            <button class="btn close-message-box">OK</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalOverlay);
+
+            modalOverlay.querySelector('.close-modal').addEventListener('click', () => document.body.removeChild(modalOverlay));
+            modalOverlay.querySelector('.close-message-box').addEventListener('click', () => document.body.removeChild(modalOverlay));
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) document.body.removeChild(modalOverlay);
+            });
+        }
+
+        function showConfirmationBox(message, onConfirm) {
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'modal-overlay visible';
+            modalOverlay.innerHTML = `
+                <div class="modal neo-ui">
+                    <div class="modal-header">
+                        <h2>Confirm Action</h2>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <p>${message}</p>
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                            <button class="btn btn-secondary confirm-cancel">Cancel</button>
+                            <button class="btn confirm-ok">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalOverlay);
+
+            modalOverlay.querySelector('.close-modal').addEventListener('click', () => document.body.removeChild(modalOverlay));
+            modalOverlay.querySelector('.confirm-cancel').addEventListener('click', () => document.body.removeChild(modalOverlay));
+            modalOverlay.querySelector('.confirm-ok').addEventListener('click', () => {
+                onConfirm();
+                document.body.removeChild(modalOverlay);
+            });
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) document.body.removeChild(modalOverlay);
+            });
+        }
+
 
         // --- EVENT LISTENERS INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1451,10 +1676,44 @@
                 }
             });
 
-            [searchInput, groupFilter, memberFilter, statusFilter, sortBy].forEach(el => el.addEventListener('change', applyFiltersAndSort));
-            searchInput.addEventListener('keyup', applyFiltersAndSort);
-            groupFilter.addEventListener('change', populateMemberFilter);
+            // Desktop Filter/Sort Listeners
+            [searchInputDesktop, groupFilterDesktop, memberFilterDesktop, statusFilterDesktop, sortByDesktop].forEach(el => el.addEventListener('change', applyFiltersAndSort));
+            searchInputDesktop.addEventListener('keyup', applyFiltersAndSort);
+            groupFilterDesktop.addEventListener('change', populateMemberFilters);
 
+            // Mobile Filter/Sort Listeners (inside modal)
+            document.getElementById('filter-toggle-btn').addEventListener('click', () => openModal('filters-modal'));
+            document.getElementById('apply-filters-btn').addEventListener('click', () => {
+                // Sync desktop filters with mobile filters after applying
+                searchInputDesktop.value = searchInputMobile.value;
+                groupFilterDesktop.value = groupFilterMobile.value;
+                memberFilterDesktop.value = memberFilterMobile.value;
+                statusFilterDesktop.value = statusFilterMobile.value;
+                sortByDesktop.value = sortByMobile.value;
+
+                applyFiltersAndSort();
+                closeModal('filters-modal');
+            });
+            document.getElementById('reset-filters-btn').addEventListener('click', () => {
+                searchInputMobile.value = '';
+                groupFilterMobile.value = 'all';
+                memberFilterMobile.value = 'all'; // Will be repopulated by populateMemberFilters
+                statusFilterMobile.value = 'available';
+                sortByMobile.value = 'default';
+                populateMemberFilters(); // Ensure members are reset correctly
+                
+                // Also reset desktop filters
+                searchInputDesktop.value = '';
+                groupFilterDesktop.value = 'all';
+                memberFilterDesktop.value = 'all';
+                statusFilterDesktop.value = 'available';
+                sortByDesktop.value = 'default';
+
+                applyFiltersAndSort();
+                closeModal('filters-modal');
+            });
+            groupFilterMobile.addEventListener('change', populateMemberFilters);
+            
             cardGrid.addEventListener('click', (e) => {
                 const editBtn = e.target.closest('.edit-card-btn');
                 if (editBtn) {
@@ -1479,12 +1738,20 @@
                 selectedCards.clear();
                 updateFloatingBar();
             });
-            document.getElementById('checkout-btn').addEventListener('click', () => { generateCheckoutMessage(); openModal('checkout-modal'); });
+            document.getElementById('checkout-btn').addEventListener('click', () => { 
+                if (selectedCards.size === 0) {
+                    showMessageBox("Please select at least one card to checkout.", "Info");
+                    return;
+                }
+                generateCheckoutMessage(); 
+                openModal('checkout-modal'); 
+            });
             document.getElementById('back-to-top').addEventListener('click', () => window.scrollTo(0, 0));
             document.getElementById('info-btn').addEventListener('click', () => openModal('info-modal'));
 
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
                 overlay.addEventListener('click', (e) => {
+                    // Only close if clicking on the overlay itself, not its children
                     if (e.target === overlay && overlay.id !== 'admin-modal') closeModal(overlay.id);
                 });
             });
@@ -1494,7 +1761,7 @@
                 const textarea = document.getElementById('generated-message');
                 textarea.select();
                 document.execCommand('copy');
-                alert('Message copied!');
+                showMessageBox('Message copied!', 'Success');
             });
             ['shipping-country', 'shipping-method', 'payment-method'].forEach(id => document.getElementById(id).addEventListener('input', generateCheckoutMessage));
 
