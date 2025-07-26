@@ -699,7 +699,7 @@
             }
 
             .photocard[data-mobile-text-hidden="false"] .card-text {
-                max-height: 200px; /* Sufficient height to show content, adjusted */
+                max-height: var(--dynamic-max-height, 200px); /* Use dynamic height for expansion */
                 padding-top: 10px; /* Restore original padding */
                 padding-bottom: 10px;
                 opacity: 1;
@@ -710,7 +710,7 @@
                 min-height: 0; /* Resetting this for mobile */
             }
 
-            /* Mobile Rare Card Sheen Effect - Re-enabled and adjusted */
+            /* NEW: Mobile Rare Card Glitter Effect */
             .photocard.rare::after {
                 content: '';
                 position: absolute;
@@ -718,26 +718,25 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(
-                    135deg,
-                    transparent 0%,
-                    rgba(var(--member-shadow-rgb), 0.3) 30%, /* Increased opacity for visibility */
-                    rgba(var(--member-shadow-rgb), 0.7) 50%, /* Increased opacity for visibility */
-                    rgba(var(--member-shadow-rgb), 0.3) 70%,
-                    transparent 100%
-                );
-                background-size: 200% 100%; /* Same as desktop for now */
-                background-position: -100% 0;
+                /* Glitter effect using radial gradients */
+                background: radial-gradient(circle at 10% 20%, rgba(var(--member-shadow-rgb), 0.3) 1px, transparent 1px),
+                            radial-gradient(circle at 70% 80%, rgba(var(--member-shadow-rgb), 0.3) 1px, transparent 1px),
+                            radial-gradient(circle at 40% 50%, rgba(var(--member-shadow-rgb), 0.3) 1px, transparent 1px),
+                            radial-gradient(circle at 90% 10%, rgba(var(--member-shadow-rgb), 0.3) 1px, transparent 1px),
+                            radial-gradient(circle at 20% 90%, rgba(var(--member-shadow-rgb), 0.3) 1px, transparent 1px);
+                background-size: 10px 10px; /* Size of each glitter dot */
+                background-repeat: repeat;
                 z-index: 4;
-                mix-blend-mode: hard-light;
+                mix-blend-mode: screen; /* Blends nicely with the card image */
+                opacity: 0.7; /* Initial opacity */
                 pointer-events: none;
-                opacity: 1; /* Ensure full opacity when active */
-                animation: rare-sheen-wave-mobile 3s infinite linear; /* Faster, distinct animation for mobile */
+                animation: glitter-sparkle 2s infinite alternate ease-in-out; /* Sparkle animation */
             }
 
-            @keyframes rare-sheen-wave-mobile {
-                0% { background-position: -100% 0; }
-                100% { background-position: 100% 0; }
+            @keyframes glitter-sparkle {
+                0% { opacity: 0.7; transform: scale(1); }
+                50% { opacity: 1; transform: scale(1.02); }
+                100% { opacity: 0.7; transform: scale(1); }
             }
 
             /* Re-enable the rare-glow animation for mobile */
@@ -1111,7 +1110,7 @@
             apiKey: "AIzaSyBWiXIpRVNIR18PzuRU67XTjGgn-tBjzeE",
             authDomain: "k-pop-price-list-super-pro.firebaseapp.com",
             projectId: "k-pop-price-list-super-pro",
-            storageBucket: "k-pop-price-list-super-pro.firebasestorage.app",
+            storageBucket: "k-pop-price-list-super-pro.firebaseestorage.app",
             messagingSenderId: "638515162354",
             appId: "1:638515162354:web:53e19e2f5efe920899f46b"
         };
@@ -1363,7 +1362,7 @@
             const currentSearchInput = isMobileView ? searchInputMobile : searchInputDesktop;
             const currentGroupFilter = isMobileView ? groupFilterMobile : groupFilterDesktop;
             const currentMemberFilter = isMobileView ? memberFilterMobile : memberFilterDesktop;
-            const currentStatusFilter = isMobileView ? statusFilterMobile : statusFilterDesktop; /* Corrected: was ReadableStreamDefaultController */
+            const currentStatusFilter = isMobileView ? statusFilterMobile : statusFilterDesktop;
             const currentSortBy = isMobileView ? sortByMobile : sortByDesktop;
 
             const searchTerm = currentSearchInput.value.toLowerCase();
@@ -1525,10 +1524,11 @@
                         // Show text: temporarily set max-height to none to get scrollHeight, then set explicit height
                         cardTextElement.style.maxHeight = 'none'; // Allow content to dictate height
                         const scrollHeight = cardTextElement.scrollHeight; // Get natural height
+                        cardTextElement.style.setProperty('--dynamic-max-height', `${scrollHeight}px`); // Set dynamic CSS variable
                         cardTextElement.style.maxHeight = '0px'; // Reset to 0 for transition
                         // Use requestAnimationFrame to ensure reflow before setting final height
                         requestAnimationFrame(() => {
-                            cardTextElement.style.maxHeight = `${scrollHeight}px`;
+                            cardTextElement.style.maxHeight = `var(--dynamic-max-height)`; // Use the dynamic variable
                             cardTextElement.style.opacity = '1';
                             cardTextElement.style.paddingTop = '10px';
                             cardTextElement.style.paddingBottom = '10px';
