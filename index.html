@@ -309,10 +309,12 @@
         .photocard.rare::after {
             content: '';
             position: absolute;
-            top: -50%; /* Start off-screen top-left */
-            left: -50%; /* Start off-screen top-left */
-            width: 200%; /* Cover more area diagonally */
-            height: 200%; /* Cover more area diagonally */
+            /* Position the element to cover the card diagonally and allow movement */
+            top: -100%; 
+            left: -100%; 
+            width: 300%; /* Make it wide enough to sweep across diagonally */
+            height: 300%; /* Make it tall enough to sweep across diagonally */
+            
             /* Diagonal linear gradient for the sweeping effect */
             background: linear-gradient(
                 45deg, /* Angle from bottom-left to top-right */
@@ -322,12 +324,13 @@
                 rgba(var(--member-shadow-rgb), 0.2) 70%,
                 transparent 100%
             );
+            
             z-index: 4;
             mix-blend-mode: hard-light;
             opacity: 0.8; /* Keep it visible when auto-playing */
             pointer-events: none;
-            animation: rare-sheen-wave 4s infinite ease-in-out; /* Auto-play animation */
-            transform-origin: 0% 0%; /* Set origin for diagonal movement */
+            animation: rare-sheen-wave 4s infinite linear; /* Auto-play animation with linear timing */
+            transform-origin: 50% 50%; /* Ensure rotation and translation are centered */
         }
 
         .photocard.rare:hover::after {
@@ -336,8 +339,8 @@
         }
 
         @keyframes rare-sheen-wave {
-            0% { transform: translate(0%, 0%); } /* Start top-left */
-            100% { transform: translate(-100%, 100%); } /* Move to bottom-right */
+            0% { transform: rotate(45deg) translateX(-100%); } /* Start off-screen left, rotated */
+            100% { transform: rotate(45deg) translateX(100%); } /* Move across to off-screen right, rotated */
         }
 
 
@@ -638,12 +641,16 @@
             /* Mobile Filter Modal specific styling */
             #filters-modal .form-group select,
             #filters-modal .form-group input[type="text"] {
-                width: 100%; /* Ensure they take full width */
+                width: 250px; /* Fixed width for uniformity */
+                max-width: 100%; /* Ensure it doesn't overflow on very small screens */
+                margin: 0 auto; /* Center them */
+                display: block; /* Ensure they take full width for margin auto to work */
                 min-width: unset; /* Override previous min-width */
             }
             #filters-modal .filter-group select,
             #filters-modal .sort-group select {
-                width: 100%;
+                width: 250px; /* Apply fixed width to selects as well */
+                max-width: 100%;
             }
 
             /* Mobile text hiding/revealing */
@@ -673,8 +680,8 @@
             /* Two cards per row, centered */
             #card-grid { 
                 grid-template-columns: repeat(2, 1fr); /* Explicitly 2 columns */
-                gap: 2rem 1.5rem; /* Adjust gap for 2 columns */
-                padding: 0 0.75rem 10rem 0.75rem; /* Adjust padding to match gap */
+                gap: 1rem; /* Adjust gap for 2 columns */
+                padding: 0 0.5rem 10rem 0.5rem; /* Adjust padding to match gap */
             }
             .floating-bar .selection-info { font-size: 0.9rem; }
             .floating-bar .actions { gap: 0.5rem; }
@@ -1382,20 +1389,15 @@
             }
 
             if (isMobile) {
-                // On mobile, first tap on card (not heart) reveals text, subsequent tap (or tap on heart) selects
                 const isSelectedIndicatorClick = e.target.closest('.selected-indicator');
                 const isTextCurrentlyHidden = cardElement.dataset.mobileTextHidden !== "false";
 
-                if (isTextCurrentlyHidden && !isSelectedIndicatorClick) {
-                    // First tap on card (not heart) reveals text
-                    cardElement.dataset.mobileTextHidden = "false";
-                    return; // Don't select the card on first tap to reveal text
-                } else if (!isTextCurrentlyHidden && !isSelectedIndicatorClick) {
-                    // Second tap on card (not heart) selects
+                if (isSelectedIndicatorClick) {
+                    // Tapping the heart always toggles selection
                     toggleCardSelection(cardElement, docId);
-                } else if (isSelectedIndicatorClick) {
-                    // Always allow selection/deselection if heart is clicked
-                    toggleCardSelection(cardElement, docId);
+                } else {
+                    // Tapping the card body (not heart/admin controls) toggles text visibility
+                    cardElement.dataset.mobileTextHidden = (isTextCurrentlyHidden).toString();
                 }
             } else {
                 // On desktop, regular click toggles selection
