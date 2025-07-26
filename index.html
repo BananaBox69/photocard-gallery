@@ -398,12 +398,20 @@
         }
         .card-info .price {
             font-weight: 700; font-size: 1.2rem;
-            color: var(--color-gold);
+            color: var(--color-gold); /* Default price color */
             text-shadow: 0px 1px 3px rgba(0,0,0,0.6);
             display: flex; flex-direction: column; align-items: flex-end;
             text-align: right;
             white-space: nowrap;
         }
+        /* New styles for discounted prices */
+        .card-info .price.price-sale {
+            color: var(--color-error); /* Matches tag-sale color */
+        }
+        .card-info .price.price-super-sale {
+            color: var(--color-purple); /* Matches tag-super-sale color */
+        }
+
         .card-info .price .original-price { text-decoration: line-through; font-size: 0.8rem; color: #c0c0d0; }
         
         .card-id {
@@ -1300,6 +1308,14 @@
                 if (card.discount === 20) displayedTagHtml += '<span class="tag tag-super-sale">SUPER SALE</span>';
             }
 
+            // Determine price color class
+            let priceColorClass = '';
+            if (card.discount === 10) {
+                priceColorClass = 'price-sale';
+            } else if (card.discount === 20) {
+                priceColorClass = 'price-super-sale';
+            }
+
 
             container.innerHTML = `
                 <div class="${cardClasses.join(' ')}" data-doc-id="${card.docId}" data-tilt data-mobile-text-hidden="true">
@@ -1316,7 +1332,7 @@
                             <div class="member">${card.member} (${card.group})</div>
                             <div class="album">${card.album} - ${card.version}</div>
                         </div>
-                        <div class="price">
+                        <div class="price ${priceColorClass}">
                             €${finalPrice.toFixed(2)}
                             ${hasDiscount ? `<span class="original-price">€${card.price.toFixed(2)}</span>` : ''}
                         </div>
