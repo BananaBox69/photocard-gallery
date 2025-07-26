@@ -689,6 +689,15 @@
 
 
             /* Mobile text hiding/revealing */
+            .card-info .card-text {
+                height: 0; /* Start at 0 height */
+                overflow: hidden; /* Hide overflow during transition */
+                opacity: 0;
+                padding-top: 0; /* Ensure padding is 0 when hidden */
+                padding-bottom: 0; /* Ensure padding is 0 when hidden */
+                transition: height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+            }
+
             .photocard[data-mobile-text-hidden="false"] .card-text {
                 height: auto; /* Allow content to dictate height */
                 max-height: 150px; /* Sufficient height to show content */
@@ -704,7 +713,26 @@
 
             /* Mobile Rare Card Sheen & Glow */
             .photocard.rare::after {
-                display: none; /* Hide the complex sheen animation on mobile for performance */
+                /* Re-enable the sheen but with a subtle, less resource-intensive style */
+                display: block; /* Ensure it's visible */
+                background: linear-gradient(
+                    135deg,
+                    transparent 0%,
+                    rgba(var(--member-shadow-rgb), 0.1) 30%, /* Reduced opacity */
+                    rgba(var(--member-shadow-rgb), 0.3) 50%, /* Reduced opacity */
+                    rgba(var(--member-shadow-rgb), 0.1) 70%,
+                    transparent 100%
+                );
+                background-size: 150% 100%; /* Smaller sweep area */
+                background-position: -50% 0; /* Start off-screen left */
+                animation: rare-sheen-wave-mobile 3s infinite linear; /* Faster, simpler animation */
+                opacity: 1; /* Ensure it's fully visible when active */
+                mix-blend-mode: overlay; /* Keep blend mode */
+            }
+
+            @keyframes rare-sheen-wave-mobile {
+                0% { background-position: -50% 0; }
+                100% { background-position: 150% 0; }
             }
 
             /* Re-enable the rare-glow animation for mobile */
