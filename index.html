@@ -159,7 +159,8 @@
             padding: 1rem 1.5rem;
             display: flex; flex-wrap: wrap;
             gap: 1rem;
-            align-items: center; justify-content: center;
+            align-items: center;
+            justify-content: center; /* Default to center for desktop */
         }
         
         body[class*="theme-"] .controls-bar {
@@ -193,29 +194,10 @@
             color: var(--color-text-muted);
         }
 
+        /* Desktop Filter/Sort alignment (reverted to previous state) */
         .controls-bar input[type="text"] { width: 220px; }
         .controls-bar select { min-width: 140px; }
-
-        /* Desktop Filter/Sort alignment */
-        .controls-bar .search-box input[type="text"],
-        .controls-bar .filter-group select,
-        .controls-bar .sort-group select {
-            width: 250px; /* Uniform width for desktop controls */
-            margin-left: auto; /* Push to the right */
-        }
-        .controls-bar .search-box,
-        .controls-bar .filter-group,
-        .controls-bar .sort-group {
-            flex-grow: 1; /* Allow them to take available space */
-            justify-content: flex-end; /* Align content to the right */
-        }
-        /* Adjust icon positioning for right alignment */
-        .controls-bar .search-box i,
-        .controls-bar .filter-group label,
-        .controls-bar .sort-group i {
-            margin-right: 0.5rem; /* Add space between icon/label and input */
-            margin-left: auto; /* Push icon/label to the left if needed */
-        }
+        /* Removed explicit right alignment here */
 
 
         input[type="text"], 
@@ -737,8 +719,8 @@
                 /* Calculate card width based on header content width (100vw - 4rem padding) */
                 /* For 2 cards and 1rem gap: (100vw - 4rem - 1rem) / 2 = (100vw - 5rem) / 2 */
                 width: calc(100vw - 4rem); /* Match header content width */
-                margin: 0 auto; /* Center the grid itself */
-                gap: 1rem; /* Gap between cards */
+                margin: 3rem auto 0 auto; /* Center the grid itself, add top margin */
+                gap: 1.5rem; /* Increased gap between cards */
                 padding: 0 0 10rem 0; /* Remove horizontal padding from grid, keep bottom */
             }
             /* Ensure card-container matches the calculated width */
@@ -1237,7 +1219,7 @@
                 } else if (card.discount === 10) {
                     displayedTagHtml = '<span class="tag tag-sale">SALE</span>';
                 } else if (card.isRare) {
-                    displayedTagHtml = '<span class="tag tag-rare">RARE</span>';
+                    displayedTagHtml = `<span class="tag tag-rare mobile-highlight">RARE</span>`; // Add mobile-highlight class here
                 }
             } else { // Desktop: show all relevant tags
                 if (isNew) displayedTagHtml += '<span class="tag tag-new">NEW</span>';
@@ -1490,7 +1472,7 @@
                 populateMemberFilters(); // Re-populate mobile member filter based on mobile group filter
                 memberFilterMobile.value = memberFilterDesktop.value;
                 statusFilterMobile.value = statusFilterDesktop.value;
-                sortByMobile.value = sortByDesktop.value;
+                sortByMobile.value = sortByMobile.value; // Keep current mobile sort selection
             }
             document.getElementById(modalId).classList.add('visible');
         }
