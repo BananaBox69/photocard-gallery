@@ -194,10 +194,9 @@
             color: var(--color-text-muted);
         }
 
-        /* Desktop Filter/Sort alignment (reverted to previous state) */
+        /* Desktop Filter/Sort alignment - REVERTED to original desktop widths */
         .controls-bar input[type="text"] { width: 220px; }
         .controls-bar select { min-width: 140px; }
-        /* Removed explicit right alignment here */
 
 
         input[type="text"], 
@@ -717,10 +716,10 @@
             #card-grid { 
                 grid-template-columns: repeat(2, 1fr); /* Explicitly 2 columns */
                 /* Calculate card width based on header content width (100vw - 4rem padding) */
-                /* For 2 cards and 1rem gap: (100vw - 4rem - 1rem) / 2 = (100vw - 5rem) / 2 */
-                width: calc(100vw - 4rem); /* Match header content width */
+                /* For 2 cards and 1rem gap: (100vw - 3rem) / 2 = (100vw - 5rem) / 2 */
+                width: calc(100vw - 3rem); /* Adjusted to match content width of header with 1.5rem total padding */
                 margin: 3rem auto 0 auto; /* Center the grid itself, add top margin */
-                gap: 1.5rem; /* Increased gap between cards */
+                gap: 1rem; /* Increased gap between cards */
                 padding: 0 0 10rem 0; /* Remove horizontal padding from grid, keep bottom */
             }
             /* Ensure card-container matches the calculated width */
@@ -1436,14 +1435,24 @@
 
             if (isMobile) {
                 const isSelectedIndicatorClick = e.target.closest('.selected-indicator');
-                const isTextCurrentlyHidden = cardElement.dataset.mobileTextHidden !== "false";
+                
+                // Get the bounding rectangle of the card
+                const rect = cardElement.getBoundingClientRect();
+                // Calculate the x-coordinate of the click relative to the card
+                const clickX = e.clientX - rect.left;
+                // Determine if the click was on the left or right half
+                const isLeftHalfClick = clickX < rect.width / 2;
 
                 if (isSelectedIndicatorClick) {
                     // Tapping the heart always toggles selection
                     toggleCardSelection(cardElement, docId);
+                } else if (isLeftHalfClick) {
+                    // Tapping the left half toggles text visibility
+                    const isTextCurrentlyHidden = cardElement.dataset.mobileTextHidden !== "false";
+                    cardElement.dataset.mobileTextHidden = (!isTextCurrentlyHidden).toString();
                 } else {
-                    // Tapping the card body (not heart/admin controls) toggles text visibility
-                    cardElement.dataset.mobileTextHidden = (isTextCurrentlyHidden).toString();
+                    // Tapping the right half toggles selection
+                    toggleCardSelection(cardElement, docId);
                 }
             } else {
                 // On desktop, regular click toggles selection
