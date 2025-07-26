@@ -45,7 +45,7 @@
 
             /* Card Sizing */
             --card-width: 200px;
-            --card-height: calc(var(--card-width) * 1.55);
+            --card-aspect-ratio: 1 / 1.55; /* Define a consistent aspect ratio */
             --card-border-radius: 16px;
         }
 
@@ -178,6 +178,7 @@
         }
         body[class*="theme-"] .controls-bar input[type="text"]:focus,
         body[class*="theme-"] .controls-bar select:focus {
+            outline: none;
             border-color: var(--theme-color-primary);
             box-shadow: 0 0 0 2px var(--theme-color-primary);
         }
@@ -241,17 +242,22 @@
         /* --- CARD STYLING --- */
         /* ------------------- */
         .card-container {
-            width: var(--card-width); height: var(--card-height);
+            width: var(--card-width); 
+            /* Use padding-bottom for aspect ratio */
+            padding-bottom: calc(var(--card-width) * 1.55 / 1); /* 1.55 is height/width ratio */
             position: relative;
             --member-shadow-color: var(--shadow-color);
             --member-shadow-rgb: 26, 26, 46; /* Default RGB */
         }
 
         .photocard {
-            width: 100%; height: 100%;
+            position: absolute; /* Position absolutely within the padded container */
+            top: 0;
+            left: 0;
+            width: 100%; 
+            height: 100%; /* Fill the padded container */
             background-color: var(--card-bg);
             border-radius: var(--card-border-radius);
-            position: relative;
             overflow: hidden; cursor: pointer;
             display: flex; flex-direction: column;
             transform-style: preserve-3d;
@@ -307,7 +313,7 @@
             width: 100%;
             height: 100%;
             /* Linear gradient for the sweeping effect */
-            background-image: linear-gradient(
+            background: linear-gradient(
                 135deg, /* Angle from bottom-left to top-right */
                 transparent 0%,
                 rgba(var(--member-shadow-rgb), 0.2) 20%, /* Use RGB for better blending */
@@ -316,11 +322,9 @@
                 transparent 100%
             );
             background-size: 300% 100%; /* Wider than card to allow movement */
-            background-position: var(--sheen-pos, -100%) 0; /* Initial position off-screen left */
             z-index: 4;
             mix-blend-mode: hard-light;
-            opacity: 0.8; /* Keep it visible */
-            transition: opacity 0.4s ease; /* Transition for hover opacity */
+            opacity: 0.8; /* Keep it visible when auto-playing */
             pointer-events: none;
             animation: rare-sheen-wave 4s infinite ease-in-out; /* Auto-play animation */
         }
@@ -331,9 +335,9 @@
         }
 
         @keyframes rare-sheen-wave {
-            0% { --sheen-pos: -100%; } /* Start off-screen left */
-            50% { --sheen-pos: 100%; } /* Move across to off-screen right */
-            100% { --sheen-pos: -100%; } /* Loop back */
+            0% { transform: translateX(-100%); } /* Start off-screen left */
+            50% { transform: translateX(100%); } /* Move across to off-screen right */
+            100% { transform: translateX(-100%); } /* Loop back */
         }
 
         .photocard.rare {
@@ -668,6 +672,7 @@
             /* Two cards per row, centered */
             :root { --card-width: calc(50% - 0.75rem); } /* 2 cards with 1.5rem gap */
             #card-grid { 
+                grid-template-columns: repeat(2, 1fr); /* Explicitly 2 columns */
                 gap: 2rem 1.5rem; /* Adjust gap for 2 columns */
                 padding: 0 0.75rem 10rem 0.75rem; /* Adjust padding to match gap */
             }
