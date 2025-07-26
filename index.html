@@ -157,11 +157,10 @@
 
         .controls-bar {
             padding: 1rem 1.5rem;
-            display: flex; /* Use flexbox for desktop controls */
-            flex-wrap: wrap;
+            display: flex; flex-wrap: wrap;
             gap: 1rem;
             align-items: center;
-            justify-content: flex-end; /* Align to the right for desktop */
+            justify-content: center; /* Reverted to center for desktop */
         }
         
         body[class*="theme-"] .controls-bar {
@@ -195,17 +194,14 @@
             color: var(--color-text-muted);
         }
 
-        /* Desktop Filter/Sort alignment - Uniform width and right alignment */
-        .controls-bar input[type="text"],
-        .controls-bar select {
-            width: 220px; /* Set a consistent width for all inputs/selects */
-            min-width: unset; /* Override any min-width that might conflict */
-        }
-        /* Ensure the groups align their contents to the right if they are flex containers */
+        /* Desktop Filter/Sort alignment - Reverted to original desktop widths */
+        .controls-bar input[type="text"] { width: 220px; }
+        .controls-bar select { min-width: 140px; }
+        /* Revert justify-content for groups to default (flex-start if not explicitly set) */
         .controls-bar .search-box,
         .controls-bar .filter-group,
         .controls-bar .sort-group {
-            justify-content: flex-end; /* Align items to the right within their group */
+            justify-content: flex-start; /* Reverted */
         }
 
 
@@ -386,6 +382,19 @@
             flex-direction: column;
             justify-content: flex-end; /* Push content to the bottom */
             padding-bottom: 2px; /* Small adjustment for visual alignment */
+            /* Optimized for mobile text show/hide */
+            height: 0; /* Start at 0 height */
+            overflow: hidden; /* Hide overflow during transition */
+            opacity: 0;
+            transition: height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .photocard[data-mobile-text-hidden="false"] .card-text {
+            height: auto; /* Allow content to dictate height */
+            max-height: 100px; /* Still add a max-height to prevent excessive expansion */
+            padding-top: 10px; /* Restore original padding */
+            padding-bottom: 10px;
+            opacity: 1;
         }
 
         .card-info .member { font-weight: 600; font-size: 0.9rem; }
@@ -688,19 +697,10 @@
 
 
             /* Mobile text hiding/revealing */
-            .photocard .card-text {
-                max-height: 0;
-                padding-top: 0;
-                padding-bottom: 0;
-                opacity: 0;
-                transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+            .card-info .card-text {
+                /* These properties are now set in the global .card-info .card-text for smoother animation */
             }
-            .photocard[data-mobile-text-hidden="false"] .card-text {
-                max-height: 100px; /* Sufficient height to show content */
-                padding-top: 10px; /* Restore original padding */
-                padding-bottom: 10px;
-                opacity: 1;
-            }
+
             /* Ensure the album text has a minimum height to prevent collapse */
             .photocard .card-info .album {
                 min-height: 0; /* Resetting this for mobile */
@@ -732,6 +732,13 @@
             /* Remove the mobile-rare-glow keyframes entirely */
             @keyframes mobile-rare-glow {
                 /* No longer needed */
+            }
+        }
+
+        @media (min-width: 769px) {
+            /* Hide the filter toggle button on desktop */
+            #filter-toggle-btn {
+                display: none;
             }
         }
 
