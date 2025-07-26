@@ -601,7 +601,7 @@
             font-weight: 600; font-size: 0.9rem;
             color: var(--color-text-muted);
         }
-        #admin-form input, #admin-form select, .checkout-form input, .checkout-form select, #login-form input, #filters-modal input, #filters-modal select { width: 100%; }
+        #admin-form input, #admin-form select, .checkout-form input, .checkout-form select, #login-form input, #login-form select, #filters-modal input, #filters-modal select { width: 100%; }
         #admin-form input[type="checkbox"] { width: auto; }
         #card-id[readonly] { background-color: var(--color-bg); cursor: not-allowed; }
         
@@ -650,28 +650,29 @@
             .float-btn { width: 45px; height: 45px; font-size: 1.3rem; }
 
             /* Mobile Filter Modal specific styling */
-            #filters-modal .form-group select,
-            #filters-modal .form-group input[type="text"] {
-                width: 250px; /* Fixed width for uniformity */
-                max-width: 100%; /* Ensure it doesn't overflow on very small screens */
-                margin-left: auto; /* Align to the right */
-                margin-right: 0; /* Remove default right margin */
-                display: block; /* Ensure it takes full width for margin auto to work */
-                min-width: unset; /* Override previous min-width */
+            #filters-modal .modal-content {
+                flex-direction: column; /* Keep as column for overall layout */
+                gap: 1rem;
             }
             #filters-modal .form-group {
-                display: flex; /* Make form group a flex container */
-                flex-direction: row; /* Arrange label and input in a row */
-                align-items: center; /* Vertically center label and input */
-                justify-content: flex-end; /* Align content to the right */
+                display: grid; /* Use grid for consistent alignment */
+                grid-template-columns: 1fr 220px; /* Label takes available space, input/select fixed to 220px */
+                gap: 1rem; /* Space between label and input/select */
+                align-items: center;
             }
             #filters-modal .form-group label {
-                flex-grow: 1; /* Allow label to take available space */
-                text-align: left; /* Align label text to the left */
-                margin-right: 1rem; /* Space between label and input */
+                text-align: left; /* Ensure labels are left-aligned */
+                margin-bottom: 0; /* Remove default margin-bottom */
+            }
+            #filters-modal .form-group select,
+            #filters-modal .form-group input[type="text"] {
+                width: 100%; /* Fill the grid column (220px) */
+                justify-self: end; /* Align to the right of its grid cell */
+                min-width: unset; /* Override previous min-width */
+                margin: 0; /* Remove any lingering margins */
             }
             #filters-modal .form-group .search-box label { /* Specific adjustment for search icon */
-                margin-right: 0.5rem;
+                margin-right: 0; /* Reset margin */
             }
 
 
@@ -694,21 +695,32 @@
                 min-height: 0; /* Resetting this for mobile */
             }
 
-            /* Mobile Rare Card Highlight (Alternative to Sheen) */
-            /* This will be a pulsing border/glow for rare cards on mobile */
-            .photocard.rare {
-                animation: none; /* Disable original rare-glow animation on mobile */
-                box-shadow: 0 0 0 2px var(--member-shadow-color), 4px 4px 0px var(--member-shadow-color); /* Base shadow */
-            }
+            /* Mobile Rare Card Sheen & Glow */
             .photocard.rare::after {
-                display: none; /* Hide the complex sheen animation on mobile */
+                display: block; /* Re-enable the sheen on mobile */
+                animation-play-state: running !important; /* Ensure it always plays */
+                opacity: 0.8 !important; /* Ensure it's always visible */
+                /* The top, left, width, height, background, z-index, mix-blend-mode are inherited from global .photocard.rare::after */
             }
-            .photocard.rare.mobile-highlight { /* New class for mobile highlight */
-                animation: mobile-rare-glow 2s infinite ease-in-out;
+
+            /* Override hover effect for sheen on mobile: keep it visible and animating */
+            .photocard.rare:hover::after {
+                opacity: 0.8; /* Keep visible on hover */
+                animation-play-state: running; /* Keep playing on hover */
             }
+
+            /* Re-enable the rare-glow animation for mobile */
+            .photocard.rare {
+                animation: rare-glow 2.5s infinite ease-in-out; /* Re-enable the pulsing glow */
+            }
+
+            /* Remove the old mobile-highlight class and its animation if the new sheen replaces it */
+            .photocard.rare.mobile-highlight { /* This class is no longer needed in JS */
+                animation: none;
+            }
+            /* Remove the mobile-rare-glow keyframes entirely */
             @keyframes mobile-rare-glow {
-                0%, 100% { box-shadow: 0 0 0 2px var(--member-shadow-color), 4px 4px 0px var(--member-shadow-color); }
-                50% { box-shadow: 0 0 0 5px var(--member-shadow-color), 8px 8px 0px var(--member-shadow-color); }
+                /* No longer needed */
             }
         }
 
@@ -935,7 +947,7 @@
                     <label for="card-group">Group</label>
                     <input type="text" id="card-group" autocomplete="off" required>
                 </div>
-                   <div class="form-group">
+                    <div class="form-group">
                     <label for="card-member">Member</label>
                     <input type="text" id="card-member" autocomplete="off" required>
                 </div>
@@ -943,19 +955,19 @@
                     <label for="card-id">Card ID (Auto-generated)</label>
                     <input type="text" id="card-id" readonly required>
                 </div>
-                   <div class="form-group">
+                    <div class="form-group">
                     <label for="card-album">Album / Origin</label>
                     <input type="text" id="card-album" autocomplete="off" required>
                 </div>
-                   <div class="form-group">
+                    <div class="form-group">
                     <label for="card-version">Version / Description</label>
                     <input type="text" id="card-version" autocomplete="off" required>
                 </div>
-                   <div class="form-group">
+                    <div class="form-group">
                     <label for="card-image-url">Image URL</label>
                     <input type="url" id="card-image-url" required>
                 </div>
-                   <div class="form-group">
+                    <div class="form-group">
                     <label for="card-price">Price (€)</label>
                     <input type="number" id="card-price" step="0.5" min="1" required>
                 </div>
@@ -1181,9 +1193,9 @@
 
             const cards = document.querySelectorAll(".photocard");
             if (window.VanillaTilt) {
-                 VanillaTilt.init(cards, {
-                    max: 8, speed: 400, glare: false, perspective: 1000
-                });
+                    VanillaTilt.init(cards, {
+                        max: 8, speed: 400, glare: false, perspective: 1000
+                    });
             }
             
             cards.forEach(card => {
@@ -1236,7 +1248,7 @@
                 } else if (card.discount === 10) {
                     displayedTagHtml = '<span class="tag tag-sale">SALE</span>';
                 } else if (card.isRare) {
-                    displayedTagHtml = `<span class="tag tag-rare mobile-highlight">RARE</span>`; // Add mobile-highlight class here
+                    displayedTagHtml = `<span class="tag tag-rare">RARE</span>`; // Removed mobile-highlight class
                 }
             } else { // Desktop: show all relevant tags
                 if (isNew) displayedTagHtml += '<span class="tag tag-new">NEW</span>';
@@ -1313,7 +1325,7 @@
             const currentSearchInput = isMobileView ? searchInputMobile : searchInputDesktop;
             const currentGroupFilter = isMobileView ? groupFilterMobile : groupFilterDesktop;
             const currentMemberFilter = isMobileView ? memberFilterMobile : memberFilterDesktop;
-            const currentStatusFilter = ReadableStreamDefaultController = isMobileView ? statusFilterMobile : statusFilterDesktop;
+            const currentStatusFilter = isMobileView ? statusFilterMobile : statusFilterDesktop;
             const currentSortBy = isMobileView ? sortByMobile : sortByDesktop;
 
             const searchTerm = currentSearchInput.value.toLowerCase();
@@ -1499,7 +1511,7 @@
                 populateMemberFilters(); // Re-populate mobile member filter based on mobile group filter
                 memberFilterMobile.value = memberFilterDesktop.value;
                 statusFilterMobile.value = statusFilterDesktop.value;
-                sortByMobile.value = sortByMobile.value; // Keep current mobile sort selection
+                sortByMobile.value = sortByDesktop.value; // Keep current mobile sort selection
             }
             document.getElementById(modalId).classList.add('visible');
         }
