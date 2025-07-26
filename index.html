@@ -690,17 +690,16 @@
 
             /* Mobile text hiding/revealing */
             .card-info .card-text {
-                height: 0; /* Start at 0 height */
+                max-height: 0; /* Start at 0 max-height */
                 overflow: hidden; /* Hide overflow during transition */
                 opacity: 0;
                 padding-top: 0; /* Ensure padding is 0 when hidden */
                 padding-bottom: 0; /* Ensure padding is 0 when hidden */
-                transition: height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+                transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
             }
 
             .photocard[data-mobile-text-hidden="false"] .card-text {
-                height: auto; /* Allow content to dictate height */
-                max-height: 150px; /* Sufficient height to show content */
+                max-height: 200px; /* Sufficient height to show content, adjusted */
                 padding-top: 10px; /* Restore original padding */
                 padding-bottom: 10px;
                 opacity: 1;
@@ -711,28 +710,31 @@
                 min-height: 0; /* Resetting this for mobile */
             }
 
-            /* Mobile Rare Card Sheen & Glow */
+            /* Mobile Rare Card Glitter Effect */
             .photocard.rare::after {
-                /* Re-enable the sheen but with a subtle, less resource-intensive style */
-                display: block; /* Ensure it's visible */
-                background: linear-gradient(
-                    135deg,
-                    transparent 0%,
-                    rgba(var(--member-shadow-rgb), 0.1) 30%, /* Reduced opacity */
-                    rgba(var(--member-shadow-rgb), 0.3) 50%, /* Reduced opacity */
-                    rgba(var(--member-shadow-rgb), 0.1) 70%,
-                    transparent 100%
+                content: ''; /* Ensure content is present */
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                /* Subtle glitter effect with repeating radial gradients */
+                background: repeating-radial-gradient(
+                    circle at center,
+                    rgba(255, 255, 255, 0.1) 0%, /* Small, subtle white dots */
+                    transparent 1%, /* Transparent around dots */
+                    transparent 10% /* Wider transparent area */
                 );
-                background-size: 150% 100%; /* Smaller sweep area */
-                background-position: -50% 0; /* Start off-screen left */
-                animation: rare-sheen-wave-mobile 3s infinite linear; /* Faster, simpler animation */
-                opacity: 1; /* Ensure it's fully visible when active */
-                mix-blend-mode: overlay; /* Keep blend mode */
+                background-size: 20% 20%; /* Size of each repeating glitter cell */
+                animation: mobile-glitter 2s infinite alternate; /* Animate opacity for a twinkling effect */
+                z-index: 4;
+                mix-blend-mode: overlay; /* Blend with card image */
+                pointer-events: none;
+                opacity: 0.8; /* Base opacity */
             }
 
-            @keyframes rare-sheen-wave-mobile {
-                0% { background-position: -50% 0; }
-                100% { background-position: 150% 0; }
+            @keyframes mobile-glitter {
+                0% { opacity: 0.6; background-position: 0 0; }
+                50% { opacity: 1; background-position: 10% 10%; } /* Slight movement and full opacity */
+                100% { opacity: 0.6; background-position: 0 0; }
             }
 
             /* Re-enable the rare-glow animation for mobile */
