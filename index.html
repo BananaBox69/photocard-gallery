@@ -157,10 +157,11 @@
 
         .controls-bar {
             padding: 1rem 1.5rem;
-            display: flex; flex-wrap: wrap;
+            display: flex; /* Use flexbox for desktop controls */
+            flex-wrap: wrap;
             gap: 1rem;
             align-items: center;
-            justify-content: center; /* Default to center for desktop */
+            justify-content: flex-end; /* Align to the right for desktop */
         }
         
         body[class*="theme-"] .controls-bar {
@@ -194,9 +195,18 @@
             color: var(--color-text-muted);
         }
 
-        /* Desktop Filter/Sort alignment - REVERTED to original desktop widths */
-        .controls-bar input[type="text"] { width: 220px; }
-        .controls-bar select { min-width: 140px; }
+        /* Desktop Filter/Sort alignment - Uniform width and right alignment */
+        .controls-bar input[type="text"],
+        .controls-bar select {
+            width: 220px; /* Set a consistent width for all inputs/selects */
+            min-width: unset; /* Override any min-width that might conflict */
+        }
+        /* Ensure the groups align their contents to the right if they are flex containers */
+        .controls-bar .search-box,
+        .controls-bar .filter-group,
+        .controls-bar .sort-group {
+            justify-content: flex-end; /* Align items to the right within their group */
+        }
 
 
         input[type="text"], 
@@ -312,28 +322,29 @@
         .photocard.rare::after {
             content: '';
             position: absolute;
-            /* Position the element to cover the card diagonally and allow movement */
-            top: -100%; 
-            left: -100%; 
-            width: 300%; /* Make it wide enough to sweep across diagonally */
-            height: 300%; /* Make it tall enough to sweep across diagonally */
+            top: 0; /* Position at top of card */
+            left: 0; /* Position at left of card */
+            width: 100%; /* Cover the card width */
+            height: 100%; /* Cover the card height */
             
             /* Diagonal linear gradient for the sweeping effect */
             background: linear-gradient(
-                45deg, /* Angle from bottom-left to top-right */
+                135deg, /* Angle for the sheen */
                 transparent 0%,
                 rgba(var(--member-shadow-rgb), 0.2) 30%, /* Use RGB for better blending */
                 rgba(var(--member-shadow-rgb), 0.5) 50%,
                 rgba(var(--member-shadow-rgb), 0.2) 70%,
                 transparent 100%
             );
+            background-size: 200% 100%; /* Make it wider than the card to allow sweeping */
+            background-position: -100% 0; /* Start off-screen left */
             
             z-index: 4;
             mix-blend-mode: hard-light;
             opacity: 0.8; /* Keep it visible when auto-playing */
             pointer-events: none;
             animation: rare-sheen-wave 4s infinite linear; /* Auto-play animation with linear timing */
-            transform-origin: 50% 50%; /* Ensure rotation and translation are centered */
+            /* Removed transform-origin as we are animating background-position */
         }
 
         .photocard.rare:hover::after {
@@ -342,8 +353,8 @@
         }
 
         @keyframes rare-sheen-wave {
-            0% { transform: rotate(45deg) translateX(-100%); } /* Start off-screen left, rotated */
-            100% { transform: rotate(45deg) translateX(100%); } /* Move across to off-screen right, rotated */
+            0% { background-position: -100% 0; } /* Start off-screen left */
+            100% { background-position: 100% 0; } /* Move across to off-screen right */
         }
 
 
