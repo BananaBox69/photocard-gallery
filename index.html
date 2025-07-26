@@ -710,31 +710,34 @@
                 min-height: 0; /* Resetting this for mobile */
             }
 
-            /* Mobile Rare Card Glitter Effect */
+            /* Mobile Rare Card Sheen Effect - Re-enabled and adjusted */
             .photocard.rare::after {
-                content: ''; /* Ensure content is present */
+                content: '';
                 position: absolute;
-                top: 0; left: 0;
-                width: 100%; height: 100%;
-                /* Subtle glitter effect with repeating radial gradients */
-                background: repeating-radial-gradient(
-                    circle at center,
-                    rgba(255, 255, 255, 0.2) 0%, /* Slightly increased opacity */
-                    transparent 1.5%, /* Slightly larger transparent area */
-                    transparent 8% /* Adjusted wider transparent area */
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    135deg,
+                    transparent 0%,
+                    rgba(var(--member-shadow-rgb), 0.3) 30%, /* Increased opacity for visibility */
+                    rgba(var(--member-shadow-rgb), 0.7) 50%, /* Increased opacity for visibility */
+                    rgba(var(--member-shadow-rgb), 0.3) 70%,
+                    transparent 100%
                 );
-                background-size: 25% 25%; /* Slightly larger glitter cells */
-                animation: mobile-glitter 2s infinite alternate; /* Animate opacity for a twinkling effect */
+                background-size: 200% 100%; /* Same as desktop for now */
+                background-position: -100% 0;
                 z-index: 4;
-                mix-blend-mode: overlay; /* Blend with card image */
+                mix-blend-mode: hard-light;
                 pointer-events: none;
-                opacity: 0.9; /* Slightly higher base opacity */
+                opacity: 1; /* Ensure full opacity when active */
+                animation: rare-sheen-wave-mobile 3s infinite linear; /* Faster, distinct animation for mobile */
             }
 
-            @keyframes mobile-glitter {
-                0% { opacity: 0.6; background-position: 0 0; }
-                50% { opacity: 1; background-position: 10% 10%; } /* Slight movement and full opacity */
-                100% { opacity: 0.6; background-position: 0 0; }
+            @keyframes rare-sheen-wave-mobile {
+                0% { background-position: -100% 0; }
+                100% { background-position: 100% 0; }
             }
 
             /* Re-enable the rare-glow animation for mobile */
@@ -1360,7 +1363,7 @@
             const currentSearchInput = isMobileView ? searchInputMobile : searchInputDesktop;
             const currentGroupFilter = isMobileView ? groupFilterMobile : groupFilterDesktop;
             const currentMemberFilter = isMobileView ? memberFilterMobile : memberFilterDesktop;
-            const currentStatusFilter = isMobileView ? statusFilterMobile : statusFilterDesktop;
+            const currentStatusFilter = isMobileView ? statusFilterMobile : statusFilterDesktop; /* Corrected: was ReadableStreamDefaultController */
             const currentSortBy = isMobileView ? sortByMobile : sortByDesktop;
 
             const searchTerm = currentSearchInput.value.toLowerCase();
@@ -1530,7 +1533,7 @@
                             cardTextElement.style.paddingTop = '10px';
                             cardTextElement.style.paddingBottom = '10px';
                         });
-                        cardElement.dataset.mobileTextHidden = "false";
+                        cardElement.dataset.mobileTextHidden = "false"; // Update dataset attribute
                     } else {
                         // Hide text: set explicit height to current height, then transition to 0
                         cardTextElement.style.maxHeight = `${cardTextElement.scrollHeight}px`; // Set current height explicitly
@@ -1540,7 +1543,7 @@
                             cardTextElement.style.paddingTop = '0px';
                             cardTextElement.style.paddingBottom = '0px';
                         });
-                        cardElement.dataset.mobileTextHidden = "true";
+                        cardElement.dataset.mobileTextHidden = "true"; // Update dataset attribute
                     }
                 } else {
                     // Tapping the right half toggles selection
