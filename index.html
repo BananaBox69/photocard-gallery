@@ -244,6 +244,7 @@
             width: var(--card-width); height: var(--card-height);
             position: relative;
             --member-shadow-color: var(--shadow-color);
+            --member-shadow-rgb: 26, 26, 46; /* Default RGB */
         }
 
         .photocard {
@@ -300,34 +301,39 @@
         /* Rare card sheen animation */
         .photocard.rare::after {
             content: '';
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-image: radial-gradient(
-                circle at var(--mx-anim) var(--my-anim),
-                var(--member-shadow-color) 0%, rgba(255, 255, 255, 0) 50%
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Linear gradient for the sweeping effect */
+            background-image: linear-gradient(
+                135deg, /* Angle from bottom-left to top-right */
+                transparent 0%,
+                rgba(var(--member-shadow-rgb), 0.2) 20%, /* Use RGB for better blending */
+                rgba(var(--member-shadow-rgb), 0.5) 50%,
+                rgba(var(--member-shadow-rgb), 0.2) 80%,
+                transparent 100%
             );
-            background-size: 200% 200%; /* Make the gradient larger for movement */
-            background-position: var(--mx-pos) var(--my-pos); /* Control position with custom properties */
-            z-index: 4; 
-            mix-blend-mode: hard-light; /* More vibrant blend */
-            opacity: 0.3; /* Default opacity when not hovered */
-            transition: opacity 0.4s ease;
+            background-size: 300% 100%; /* Wider than card to allow movement */
+            background-position: var(--sheen-pos, -100%) 0; /* Initial position off-screen left */
+            z-index: 4;
+            mix-blend-mode: hard-light;
+            opacity: 0.8; /* Keep it visible */
+            transition: opacity 0.4s ease; /* Transition for hover opacity */
             pointer-events: none;
-            animation: rare-sheen-animation 4s infinite ease-in-out; /* Auto-play animation */
+            animation: rare-sheen-wave 4s infinite ease-in-out; /* Auto-play animation */
         }
 
-        .photocard.rare:hover::after { 
-            opacity: 0.8; /* Increase opacity on hover */
+        .photocard.rare:hover::after {
+            opacity: 0; /* Hide auto-sheen on hover to let tilt effect take over */
             animation-play-state: paused; /* Pause auto-play animation on hover */
-            background-position: calc((var(--mx) - 0.5) * 100%) calc((var(--my) - 0.5) * 100%); /* Use mouse position on hover */
         }
 
-        @keyframes rare-sheen-animation {
-            0% { --mx-anim: 20%; --my-anim: 20%; --mx-pos: 0% 0%; opacity: 0.3; }
-            25% { --mx-anim: 80%; --my-anim: 30%; --mx-pos: 100% 0%; opacity: 0.4; }
-            50% { --mx-anim: 50%; --my-anim: 80%; --mx-pos: 50% 100%; opacity: 0.3; }
-            75% { --mx-anim: 30%; --my-anim: 70%; --mx-pos: 0% 100%; opacity: 0.4; }
-            100% { --mx-anim: 20%; --my-anim: 20%; --mx-pos: 0% 0%; opacity: 0.3; }
+        @keyframes rare-sheen-wave {
+            0% { --sheen-pos: -100%; } /* Start off-screen left */
+            50% { --sheen-pos: 100%; } /* Move across to off-screen right */
+            100% { --sheen-pos: -100%; } /* Loop back */
         }
 
         .photocard.rare {
@@ -360,7 +366,7 @@
         .card-info .album { 
             font-size: 0.75rem; 
             color: #c0c0d0; 
-            min-height: 2.4rem;
+            min-height: 2.4rem; /* Ensure minimum height on desktop */
             line-height: 1.2rem;
         }
         .card-info .price {
@@ -623,6 +629,36 @@
             .floating-bar { width: calc(100% - 2rem); }
             .floating-buttons { right: 10px; bottom: 10px; gap: 0.8rem; }
             .float-btn { width: 45px; height: 45px; font-size: 1.3rem; }
+
+            /* Mobile Filter Modal specific styling */
+            #filters-modal select,
+            #filters-modal input[type="text"] {
+                width: 100%; /* Ensure they take full width */
+                min-width: unset; /* Override previous min-width */
+            }
+            #filters-modal .filter-group select,
+            #filters-modal .sort-group select {
+                width: 100%;
+            }
+
+            /* Mobile text hiding/revealing */
+            .photocard .card-text {
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+                opacity: 0;
+                transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+            }
+            .photocard[data-mobile-text-hidden="false"] .card-text {
+                max-height: 100px; /* Sufficient height to show content */
+                padding-top: 10px; /* Restore original padding */
+                padding-bottom: 10px;
+                opacity: 1;
+            }
+            /* Ensure the album text has a minimum height to prevent collapse */
+            .photocard .card-info .album {
+                min-height: 0; /* Resetting this for mobile */
+            }
         }
 
         @media (max-width: 480px) {
@@ -1097,6 +1133,7 @@
             
             const memberColor = MEMBER_COLORS[card.member] || { start: 'var(--shadow-color)', end: 'var(--shadow-color)', rgb: '26, 26, 46' };
             container.style.setProperty('--member-shadow-color', memberColor.end);
+            container.style.setProperty('--member-shadow-rgb', memberColor.rgb); // Set RGB for sheen animation
             container.style.setProperty('--rare-glow-color', memberColor.end);
 
             const isSelected = selectedCards.has(card.docId);
@@ -1112,17 +1149,36 @@
             const timeDiff = new Date() - dateAdded;
             const isNew = timeDiff < 7 * 24 * 60 * 60 * 1000;
 
+            let displayedTagHtml = '';
+            // Determine if it's a mobile view
+            const isMobileView = window.innerWidth <= 768;
+
+            if (isMobileView) { // Only for mobile: show one tag based on priority
+                if (isNew) {
+                    displayedTagHtml = '<span class="tag tag-new">NEW</span>';
+                } else if (card.discount === 20) {
+                    displayedTagHtml = '<span class="tag tag-super-sale">SUPER SALE</span>';
+                } else if (card.discount === 10) {
+                    displayedTagHtml = '<span class="tag tag-sale">SALE</span>';
+                } else if (card.isRare) {
+                    displayedTagHtml = '<span class="tag tag-rare">RARE</span>';
+                }
+            } else { // Desktop: show all relevant tags
+                if (isNew) displayedTagHtml += '<span class="tag tag-new">NEW</span>';
+                if (card.isRare) displayedTagHtml += '<span class="tag tag-rare">RARE</span>';
+                if (card.discount === 10) displayedTagHtml += '<span class="tag tag-sale">SALE</span>';
+                if (card.discount === 20) displayedTagHtml += '<span class="tag tag-super-sale">SUPER SALE</span>';
+            }
+
+
             container.innerHTML = `
-                <div class="${cardClasses.join(' ')}" data-doc-id="${card.docId}" data-tilt>
+                <div class="${cardClasses.join(' ')}" data-doc-id="${card.docId}" data-tilt data-mobile-text-hidden="true">
                     <img src="${card.imageUrl}" alt="${card.member} - ${card.album}" class="card-image" loading="lazy">
                     <div class="card-border" style="border-image-source: linear-gradient(145deg, ${memberColor.start}, ${memberColor.end});"></div>
                     <div class="card-id">${card.id}</div>
                     
                     <div class="card-tags">
-                        ${isNew ? '<span class="tag tag-new">NEW</span>' : ''}
-                        ${card.isRare ? '<span class="tag tag-rare">RARE</span>' : ''}
-                        ${card.discount === 10 ? '<span class="tag tag-sale">SALE</span>' : ''}
-                        ${card.discount === 20 ? '<span class="tag tag-super-sale">SUPER SALE</span>' : ''}
+                        ${displayedTagHtml}
                     </div>
 
                     <div class="card-info">
@@ -1300,12 +1356,49 @@
             const docId = cardElement.dataset.docId;
             const cardData = allCards.find(c => c.docId === docId);
 
-            if (!isAdmin && (!cardData || cardData.status !== 'available')) {
-                cardElement.style.animation = 'shake 0.5s';
-                setTimeout(() => cardElement.style.animation = '', 500);
+            // Check if it's a mobile device (based on your media query breakpoint)
+            const isMobile = window.innerWidth <= 768;
+
+            // Admin mode overrides all user interaction rules
+            if (isAdmin) {
+                // Admin interactions (edit/delete buttons) are handled by specific listeners
+                // If not an admin button, then it's a selection click
+                if (!e.target.closest('.admin-card-controls button')) {
+                    toggleCardSelection(cardElement, docId);
+                }
                 return;
             }
 
+            // Non-admin mode
+            if (!cardData || cardData.status !== 'available') {
+                cardElement.style.animation = 'shake 0.5s';
+                setTimeout(() => cardElement.style.animation = '', 500);
+                return; // Cannot select unavailable cards
+            }
+
+            if (isMobile) {
+                // On mobile, first tap on card (not heart) reveals text, subsequent tap (or tap on heart) selects
+                const isSelectedIndicatorClick = e.target.closest('.selected-indicator');
+                const isTextCurrentlyHidden = cardElement.dataset.mobileTextHidden !== "false";
+
+                if (isTextCurrentlyHidden && !isSelectedIndicatorClick) {
+                    // First tap on card (not heart) reveals text
+                    cardElement.dataset.mobileTextHidden = "false";
+                    return; // Don't select the card on first tap to reveal text
+                } else if (!isTextCurrentlyHidden && !isSelectedIndicatorClick) {
+                    // Second tap on card (not heart) selects
+                    toggleCardSelection(cardElement, docId);
+                } else if (isSelectedIndicatorClick) {
+                    // Always allow selection/deselection if heart is clicked
+                    toggleCardSelection(cardElement, docId);
+                }
+            } else {
+                // On desktop, regular click toggles selection
+                toggleCardSelection(cardElement, docId);
+            }
+        }
+
+        function toggleCardSelection(cardElement, docId) {
             if (selectedCards.has(docId)) {
                 selectedCards.delete(docId);
                 cardElement.classList.remove('selected');
