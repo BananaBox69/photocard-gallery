@@ -268,8 +268,8 @@
         }
         
         .photocard:hover {
-            transform: translateY(-4px);
-            box-shadow: 8px 8px 0px var(--member-shadow-color);
+            transform: translateY(-6px); /* Stronger lift */
+            box-shadow: 12px 12px 0px var(--member-shadow-color); /* Stronger shadow */
         }
         
         .photocard .card-image {
@@ -302,31 +302,32 @@
             transition: opacity 0.5s ease;
             pointer-events: none;
         }
-        .photocard:hover::before { opacity: 0.6; }
+        /* Stronger hover effect for all cards, including rare */
+        .photocard:hover::before { opacity: 0.8; } 
 
         /* Rare card sheen animation */
         .photocard.rare::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            /* Linear gradient for the sweeping effect */
+            top: -50%; /* Start off-screen top-left */
+            left: -50%; /* Start off-screen top-left */
+            width: 200%; /* Cover more area diagonally */
+            height: 200%; /* Cover more area diagonally */
+            /* Diagonal linear gradient for the sweeping effect */
             background: linear-gradient(
-                135deg, /* Angle from bottom-left to top-right */
+                45deg, /* Angle from bottom-left to top-right */
                 transparent 0%,
-                rgba(var(--member-shadow-rgb), 0.2) 20%, /* Use RGB for better blending */
+                rgba(var(--member-shadow-rgb), 0.2) 30%, /* Use RGB for better blending */
                 rgba(var(--member-shadow-rgb), 0.5) 50%,
-                rgba(var(--member-shadow-rgb), 0.2) 80%,
+                rgba(var(--member-shadow-rgb), 0.2) 70%,
                 transparent 100%
             );
-            background-size: 300% 100%; /* Wider than card to allow movement */
             z-index: 4;
             mix-blend-mode: hard-light;
             opacity: 0.8; /* Keep it visible when auto-playing */
             pointer-events: none;
             animation: rare-sheen-wave 4s infinite ease-in-out; /* Auto-play animation */
+            transform-origin: 0% 0%; /* Set origin for diagonal movement */
         }
 
         .photocard.rare:hover::after {
@@ -335,10 +336,10 @@
         }
 
         @keyframes rare-sheen-wave {
-            0% { transform: translateX(-100%); } /* Start off-screen left */
-            50% { transform: translateX(100%); } /* Move across to off-screen right */
-            100% { transform: translateX(-100%); } /* Loop back */
+            0% { transform: translate(0%, 0%); } /* Start top-left */
+            100% { transform: translate(-100%, 100%); } /* Move to bottom-right */
         }
+
 
         .photocard.rare {
             --rare-glow-color: var(--member-shadow-color);
@@ -635,8 +636,8 @@
             .float-btn { width: 45px; height: 45px; font-size: 1.3rem; }
 
             /* Mobile Filter Modal specific styling */
-            #filters-modal select,
-            #filters-modal input[type="text"] {
+            #filters-modal .form-group select,
+            #filters-modal .form-group input[type="text"] {
                 width: 100%; /* Ensure they take full width */
                 min-width: unset; /* Override previous min-width */
             }
@@ -670,7 +671,6 @@
             .bias-title { font-size: 1rem; }
             .bias-bubble { width: 40px; height: 40px; font-size: 1.1rem; }
             /* Two cards per row, centered */
-            :root { --card-width: calc(50% - 0.75rem); } /* 2 cards with 1.5rem gap */
             #card-grid { 
                 grid-template-columns: repeat(2, 1fr); /* Explicitly 2 columns */
                 gap: 2rem 1.5rem; /* Adjust gap for 2 columns */
