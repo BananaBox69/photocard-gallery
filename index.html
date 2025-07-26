@@ -730,7 +730,7 @@
                 background-repeat: repeat;
                 z-index: 4;
                 mix-blend-mode: screen; /* Good for light effects over images */
-                opacity: 0.8; /* Base opacity */
+                opacity: 0.4; /* Base opacity reduced to 0.4 */
                 pointer-events: none;
                 animation: glitter-move 8s infinite linear, glitter-pulse 1.5s infinite alternate ease-in-out;
             }
@@ -741,8 +741,8 @@
             }
 
             @keyframes glitter-pulse {
-                0%, 100% { opacity: 0.8; transform: scale(1); }
-                50% { opacity: 1; transform: scale(1.03); }
+                0%, 100% { opacity: 0.4; transform: scale(1); } /* Adjusted opacity to 0.4 */
+                50% { opacity: 0.5; transform: scale(1.03); }  /* Adjusted opacity to 0.5 */
             }
 
             /* Re-enable the rare-glow animation for mobile */
