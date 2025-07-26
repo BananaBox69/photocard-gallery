@@ -382,19 +382,11 @@
             flex-direction: column;
             justify-content: flex-end; /* Push content to the bottom */
             padding-bottom: 2px; /* Small adjustment for visual alignment */
-            /* Optimized for mobile text show/hide */
-            height: 0; /* Start at 0 height */
-            overflow: hidden; /* Hide overflow during transition */
-            opacity: 0;
-            transition: height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
-        }
-
-        .photocard[data-mobile-text-hidden="false"] .card-text {
-            height: auto; /* Allow content to dictate height */
-            max-height: 100px; /* Still add a max-height to prevent excessive expansion */
-            padding-top: 10px; /* Restore original padding */
-            padding-bottom: 10px;
+            /* Default state for desktop - visible */
+            height: auto;
+            overflow: visible;
             opacity: 1;
+            transition: none; /* No transition on desktop by default */
         }
 
         .card-info .member { font-weight: 600; font-size: 0.9rem; }
@@ -697,8 +689,12 @@
 
 
             /* Mobile text hiding/revealing */
-            .card-info .card-text {
-                /* These properties are now set in the global .card-info .card-text for smoother animation */
+            .photocard[data-mobile-text-hidden="false"] .card-text {
+                height: auto; /* Allow content to dictate height */
+                max-height: 150px; /* Sufficient height to show content */
+                padding-top: 10px; /* Restore original padding */
+                padding-bottom: 10px;
+                opacity: 1;
             }
 
             /* Ensure the album text has a minimum height to prevent collapse */
@@ -708,16 +704,7 @@
 
             /* Mobile Rare Card Sheen & Glow */
             .photocard.rare::after {
-                display: block; /* Re-enable the sheen on mobile */
-                animation-play-state: running !important; /* Ensure it always plays */
-                opacity: 0.8 !important; /* Ensure it's always visible */
-                /* The top, left, width, height, background, z-index, mix-blend-mode are inherited from global .photocard.rare::after */
-            }
-
-            /* Override hover effect for sheen on mobile: keep it visible and animating */
-            .photocard.rare:hover::after {
-                opacity: 0.8; /* Keep visible on hover */
-                animation-play-state: running; /* Keep playing on hover */
+                display: none; /* Hide the complex sheen animation on mobile for performance */
             }
 
             /* Re-enable the rare-glow animation for mobile */
