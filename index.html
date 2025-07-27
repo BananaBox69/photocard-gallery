@@ -1188,7 +1188,12 @@
                 METADATA.groups = [];
                 querySnapshot.forEach(doc => {
                     METADATA[doc.id] = doc.data();
-                    METADATA.groups.push(doc.id.replace(/([A-Z])/g, ' $1').trim()); // Format for display
+                    let groupNameForDisplay = doc.id;
+                    // Special handling for 'IU' to prevent 'I U' formatting
+                    if (doc.id !== 'IU') { 
+                        groupNameForDisplay = doc.id.replace(/([A-Z])/g, ' $1').trim();
+                    }
+                    METADATA.groups.push(groupNameForDisplay);
                 });
             } catch (error) {
                 console.error("Error fetching metadata: ", error);
@@ -1658,6 +1663,8 @@
                 input.parentNode.appendChild(suggestionsContainer);
             }
             
+            let currentFocus = -1; // Index of the currently focused suggestion
+
             const showSuggestions = () => {
                 const value = input.value.toLowerCase();
                 const source = sourceArrayFn();
@@ -1682,14 +1689,59 @@
                 } else {
                     suggestionsContainer.style.display = 'none';
                 }
+                // Reset focus when suggestions are re-rendered
+                currentFocus = -1;
+                updateActive(suggestionsContainer.children);
+            };
+
+            const updateActive = (items) => {
+                for (let i = 0; i < items.length; i++) {
+                    items[i].classList.remove("selected");
+                }
+                if (currentFocus >= 0 && currentFocus < items.length) {
+                    items[currentFocus].classList.add("selected");
+                    // Scroll into view
+                    items[currentFocus].scrollIntoView({ block: "nearest", inline: "nearest" });
+                }
             };
 
             input.addEventListener('input', showSuggestions);
             input.addEventListener('focus', showSuggestions);
 
+            input.addEventListener('keydown', (e) => {
+                const items = suggestionsContainer.children;
+                if (items.length === 0) return;
+
+                if (e.key === "ArrowDown") {
+                    currentFocus = (currentFocus + 1) % items.length;
+                    updateActive(items);
+                    input.value = items[currentFocus].textContent; // Update input value on arrow key
+                    e.preventDefault(); // Prevent page scroll
+                } else if (e.key === "ArrowUp") {
+                    currentFocus = (currentFocus - 1 + items.length) % items.length;
+                    updateActive(items);
+                    input.value = items[currentFocus].textContent; // Update input value on arrow key
+                    e.preventDefault(); // Prevent page scroll
+                } else if (e.key === "Enter") {
+                    e.preventDefault(); // Prevent form submission
+                    if (currentFocus > -1 && items[currentFocus]) {
+                        items[currentFocus].click(); // Simulate click on the selected item
+                    } else {
+                        // If no item is highlighted but Enter is pressed, hide suggestions
+                        suggestionsContainer.style.display = 'none';
+                        input.dispatchEvent(new Event('change', { bubbles: true })); // Trigger change for filters
+                    }
+                } else if (e.key === "Escape") {
+                    suggestionsContainer.style.display = 'none';
+                    currentFocus = -1;
+                    input.blur(); // Remove focus from input
+                }
+            });
+
             document.addEventListener('click', (e) => {
                 if (e.target !== input && !suggestionsContainer.contains(e.target)) {
                     suggestionsContainer.style.display = 'none';
+                    currentFocus = -1; // Reset focus when clicking outside
                 }
             });
         }
@@ -1699,17 +1751,46 @@
             const memberInput = document.getElementById('card-member');
             const idInput = document.getElementById('card-id');
 
-            const group = groupInput.value;
+            const groupDisplayName = groupInput.value; // e.g., "Red Velvet", "IU", "aespa"
             const member = memberInput.value;
 
-            if (!group || !member) {
+            if (!groupDisplayName || !member) {
                 idInput.value = 'Select Group & Member first';
                 return;
             }
 
-            const groupPrefix = (group.match(/[A-Z]/g) || []).join('').substring(0, 2);
-            const memberPrefix = member.charAt(0);
-            const prefix = `${groupPrefix}-${memberPrefix}-`.toUpperCase();
+            // Convert display name to raw ID for consistent lookup and prefix determination
+            // This handles cases like "Red Velvet" -> "RedVelvet", "IU" -> "IU", "aespa" -> "aespa"
+            let groupRawId = groupDisplayName.replace(/\s/g, ''); 
+
+            let groupPrefix;
+            // Specific handling for known groups with custom prefixes
+            if (groupRawId === 'RedVelvet') { 
+                groupPrefix = 'RV';
+            } else if (groupRawId === 'IU') {
+                groupPrefix = 'IU';
+            } else if (groupRawId === 'aespa') {
+                groupPrefix = 'AE';
+            } else {
+                // Fallback for other groups: try to get first two capital letters, or first two letters
+                const matches = groupDisplayName.match(/[A-Z]/g); // Use display name for initial matching
+                if (matches && matches.length >= 2) {
+                    groupPrefix = matches.slice(0, 2).join('');
+                } else if (matches && matches.length === 1) {
+                    groupPrefix = matches[0] + 'X'; // Append 'X' if only one capital letter
+                } else {
+                    // If no capital letters or less than two, take first two letters and uppercase
+                    groupPrefix = groupDisplayName.substring(0, 2).toUpperCase();
+                    if (groupPrefix.length === 0) {
+                        groupPrefix = 'XX'; // Default if group name is empty or very short
+                    } else if (groupPrefix.length === 1) {
+                         groupPrefix += 'X'; // Pad if only one letter
+                    }
+                }
+            }
+            
+            const memberPrefix = member.charAt(0).toUpperCase(); // Ensure member prefix is always uppercase
+            const prefix = `${groupPrefix}-${memberPrefix}-`;
 
             const cardsWithPrefix = allCards.filter(c => c.id && c.id.startsWith(prefix));
             let maxNum = 0;
@@ -2050,13 +2131,19 @@
                 return METADATA[group]?.members || [];
             });
             setupCustomAutocomplete('card-album', () => {
-                const group = document.getElementById('card-group').value.replace(/\s/g, '');
+                const groupRaw = document.getElementById('card-group').value.replace(/\s/g, '');
                 const member = document.getElementById('card-member').value;
-                const groupData = METADATA[group];
-                if (!groupData) return [];
+                const groupData = METADATA[groupRaw];
+                if (!groupData) {
+                    console.warn(`No metadata found for group: ${groupRaw} when fetching albums.`);
+                    return [];
+                }
+                // Ensure that 'albums' and 'merch' properties exist, even if empty arrays
                 const groupAlbums = [...(groupData.albums || []), ...(groupData.merch || [])];
                 const memberAlbums = groupData.member_albums?.[member] || [];
-                return [...new Set([...groupAlbums, ...memberAlbums])];
+                const combinedAlbums = [...new Set([...groupAlbums, ...memberAlbums])];
+                console.log(`Album suggestions for ${groupRaw} (${member}):`, combinedAlbums);
+                return combinedAlbums;
             });
             setupCustomAutocomplete('card-version', () => {
                 const group = document.getElementById('card-group').value.replace(/\s/g, '');
